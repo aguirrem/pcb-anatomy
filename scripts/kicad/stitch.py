@@ -65,7 +65,7 @@ def stitch(board, net_name: str = "GND", pitch: float = 5.0) -> int:
     keep = _courtyards(board)
     # never on a pad: a pour connects SMD pads solid, so the fill alone would let a via land inside one
     # (via-in-pad wicks solder away at assembly)
-    grow = r + _mm(0.15)
+    grow = width / 2 + _mm(0.15)          # the via's own ring plus a copper gap, no more
     pads = []
     for fp in board.GetFootprints():
         for pad in fp.Pads():

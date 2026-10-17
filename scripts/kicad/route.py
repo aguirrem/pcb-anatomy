@@ -32,6 +32,25 @@ import stitch
 pcbnew = kienv.pcbnew()
 
 
+def strip_planes(text: str) -> str:
+    """Remove every (plane ...) block from a Specctra DSN, matching parentheses (strings never hold them here)."""
+    out, i = [], 0
+    while True:
+        at = text.find("(plane ", i)
+        if at < 0:
+            out.append(text[i:])
+            return "".join(out)
+        start = text.rfind("\n", 0, at) + 1
+        out.append(text[i:start] if text[start:at].strip() == "" else text[i:at])
+        depth, j = 0, at
+        while j < len(text):
+            depth += {"(": 1, ")": -1}.get(text[j], 0)
+            j += 1
+            if depth == 0:
+                break
+        i = j + 1 if j < len(text) and text[j] == "\n" else j
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("pcb")
@@ -72,6 +91,11 @@ def main() -> None:
             name = re.escape(str(g))
             text = re.sub(rf'\n\s*\(net "?{name}"?\n\s*\(pins[^)]*\)\n\s*\)', "", text)
         dsn.write_text(text)
+    elif "(plane " in dsn.read_text():
+        # Pours reach Freerouting as planes, so it would count every ground pad as connected and route none of
+        # them; once signal tracks cut the real pour into islands, pads are stranded. Drop the planes so ground
+        # is routed as tracks; the pours still refill afterwards and reinforce them.
+        dsn.write_text(strip_planes(dsn.read_text()))
 
     cmd = [java, "-jar", jar, "-de", str(dsn), "-do", str(ses), "-mp", str(args.passes),
            "--gui.enabled=false", "--api_server.enabled=false"]

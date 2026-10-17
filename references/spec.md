@@ -2,7 +2,22 @@
 
 One YAML (or JSON) file per project. `sch_build.py` turns it into the schematic, `pcb_build.py` turns the schematic's netlist into the board, and both check KiCad's view against it. Put it in the project folder: every output lands next to it, named after `project`.
 
-`examples/usb-blinky/spec.yaml` is a complete, working spec. Start from it.
+`examples/usb-blinky/spec.yaml` is a complete, working spec. Start from it. The smallest complete spec looks like this:
+
+```yaml
+project: led
+parts:
+  J1: {symbol: "Connector_Generic:Conn_01x02", footprint: "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical", value: 5V}
+  R1: {symbol: "Device:R", footprint: "Resistor_SMD:R_0603_1608Metric", value: 330}
+  D1: {symbol: "Device:LED", footprint: "LED_SMD:LED_0603_1608Metric", value: red}
+nets:
+  VIN: [J1.1, R1.1]
+  LED_A: [R1.2, D1.A]
+  GND: [J1.2, D1.K]
+board: {size: [15, 10], corner: 1}
+placement:
+  J1: {at: [2.5, 3.7]}
+```
 
 ## Top level
 
@@ -113,4 +128,4 @@ placement:
   R9: {at: [6, 9], side: bottom}
 ```
 
-Place every **anchor** here: connectors (on the edge, facing out), ICs (by signal flow), regulators (next to their input), crystals (at their pins), anything hot, noisy or mechanical. Leave passives out; they are placed next to what they connect to, capacitors at IC supply pins. A placement that collides with another part, a hole or the edge margin prints a note: an edge connector crossing the margin is expected, anything else is a mistake to fix. `pcb_build.py --keep-placement` keeps positions you moved by hand in KiCad for parts not listed here.
+`at` is the footprint's **origin**, as KiCad defines it: the centre for most SMD parts, but **pin 1** for pin headers and many through-hole parts. Check with `find_part.py pads` and the render. Place every **anchor** here: connectors (on the edge, facing out), ICs (by signal flow), regulators (next to their input), crystals (at their pins), anything hot, noisy or mechanical. Leave passives out; they are placed next to what they connect to, capacitors at IC supply pins. A placement that collides with another part, a hole or the edge margin prints a note: an edge connector crossing the margin is expected, anything else is a mistake to fix. `pcb_build.py --keep-placement` keeps positions you moved by hand in KiCad for parts not listed here.

@@ -128,6 +128,8 @@ body{margin:0;background:var(--anatomy-page);color:var(--anatomy-text);font:14px
 .pcb-part[data-dim] .iso-edge{stroke:var(--anatomy-lo)}
 .pcb-part:not([data-dim]) .iso-edge{transition:stroke .3s var(--anatomy-ease)}
 .pcb-silk{font-weight:600}
+.iso-stage:focus{outline:none}
+.iso-stage:focus-visible{outline:1px solid var(--anatomy-mid);outline-offset:6px;border-radius:10px}
 .pcb-silk-strip{fill:none!important;stroke:var(--anatomy-mid)!important}
 [data-palette="board"] .pcb-silk-strip{stroke:var(--pcb-silk)!important}
 [data-palette="board"] .pcb-ruler{stroke:var(--pcb-silk);opacity:.7}

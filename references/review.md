@@ -20,8 +20,9 @@ Never describe a board as ready to order while a blocker or major is open.
 - **ERC** (all severities) and **DRC with schematic parity**. DRC findings whose items all belong to one footprint are reported once as "inside footprint": the fix is to confirm with the fab or edit the footprint, not to move tracks.
 - **Fab limits** against the preset (`jlcpcb`, `pcbway`, `oshpark`, `generic`): narrowest track, smallest via drill and annular ring.
 - **Decoupling:** every IC pin typed `power_in` must share its net with a capacitor whose other pin is on ground; distance from the pin to the nearest such capacitor pad (≤4 mm fine, 4–10 minor, >10 major, none major).
+- **Via in pad:** any via inside an SMD pad (it wicks solder at reflow unless the fab fills and caps it), major.
 - **Floating inputs:** pins typed `input` on unconnected or single-pin nets.
-- **Current:** narrowest track on each power net against the current given with `--currents` (IPC-2221 outer layer, 1 oz, 10 °C rise), plus via counts. Without `--currents` it reports capacity only; ask the user for the real currents.
+- **Current:** narrowest track on each power net against the current given with `--currents` (IPC-2221 outer layer, 1 oz, 10 °C rise), plus via counts. Without `--currents` it reports capacity only; ask the user for the real currents. Ground nets are not checked this way: their current returns through pours and many paths, so give currents for the supply nets.
 - **Differential pairs:** nets named `D+/D-`, `DP/DM`, `*_P/*_N` and length mismatch.
 - **Crystals:** routed length of each crystal net (>10 mm minor).
 - **Mechanical and assembly:** parts closer than 1 mm to the edge (connectors and holes excepted), mounting holes present, fiducials when fine-pitch parts are on the board.

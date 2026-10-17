@@ -25,7 +25,7 @@ Keep the same discipline as Anatomy: truth first (the numbers come from a pure `
 python3 scripts/kicad/board_dump.py board.kicad_pcb --zones                  # -> board.board.json
 node scripts/figure/board-figure.mjs board.board.json --out fig.html \
      [--light] [--palette ink|board] [--tour VBUS,+3V3,/SDA] [--title "..."] [--fig "Fig 3"] \
-     [--azimuth -52] [--width 640 --height 420] [--no-pours] [--no-silk] [--override fix.json]
+     [--azimuth -52] [--width 640 --height 420]   # --out may name folders that do not exist yet [--no-pours] [--no-silk] [--override fix.json]
 ```
 
 `board_dump.py` records the outline, every footprint (body outline from its fab layer, pads, a package kind and height), tracks, vias, pours and per-net totals, in KiCad's millimetres. Kinds come from footprint names: `chip`, `led`, `gullwing`, `dip`, `nolead`, `header`, `socket`, `connector` (USB-C gets a real shell; USB, D-sub, RJ45 and SD get metal shells; JST, Molex and terminal blocks get nylon housings), `switch`, `axial`, `disc`, `electrolytic` (5 mm LEDs too), `crystal`, `inductor`, `to92`, `to220`, `hole`, `edge` (gold fingers, no body), and `generic` (a box). When a guess is wrong, pass `--override fix.json` with `{"REF": {"kind": "connector", "height": 6.0}}`.
@@ -68,13 +68,13 @@ Anatomy's kit (`kit/anatomy/iso-kit.mjs`, `lathe.mjs`, `tube.mjs`) is available 
 
 ## Verify
 
-As Anatomy does, and read every PNG:
+As Anatomy does, and read every PNG. The theme comes from how the page was built (`--light`); `capture.mjs` has `--theme`, not `--light`, and ignores flags it does not know:
 
 ```bash
 node scripts/figure/capture.mjs fig.html --out shots/fig.png                      # desktop
 node scripts/figure/capture.mjs fig.html --out shots/phone.png --width 390        # phone
 node scripts/figure/capture.mjs fig.html --out shots/lift.png --key Space --times 1500
-node scripts/figure/capture.mjs fig.html --out shots/zoom.png --zoom 120,150,260,200   # 4x close-up
+node scripts/figure/capture.mjs fig.html --out shots/zoom.png --zoom 120,150,260,200   # 4x close-up; x,y,w,h in CSS px inside the card (~650 x 500)
 node scripts/figure/lines.mjs fig.html --out shots/lines.png                      # must print line ends: 0
 ```
 

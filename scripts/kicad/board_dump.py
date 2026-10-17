@@ -226,6 +226,7 @@ def main() -> None:
             "thickness": round(pcbnew.ToMM(board.GetDesignSettings().GetBoardThickness()), 3), "layers": board.GetCopperLayerCount(),
             "outline": rings, "footprints": footprints, "tracks": tracks, "vias": vias, "zones": zones, "nets": nets}
     out = Path(args.out) if args.out else Path(args.pcb).with_suffix(".board.json")
+    out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(data, separators=(",", ":")))
     print(f"wrote {out}: {len(footprints)} footprints, {len(tracks)} tracks, {len(vias)} vias, {len(zones)} pour outlines")
 

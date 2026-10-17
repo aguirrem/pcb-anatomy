@@ -427,7 +427,8 @@ export function partSvg(F, fp, options = {}) {
 // the azimuth that turns the largest edge connector's opening toward the reader (38 degrees off square on)
 export function facingAzimuth(dump, fallback = 38) {
   const [W, H] = dump.size;
-  const edgeParts = dump.footprints.filter((f) => f.kind === "connector" && f.body?.length >= 3);
+  const nearEdge = (f) => f.body.some(([x, y]) => x < 3 || y < 3 || x > W - 3 || y > H - 3);
+  const edgeParts = dump.footprints.filter((f) => ["connector", "header", "socket"].includes(f.kind) && f.body?.length >= 3 && nearEdge(f));
   if (!edgeParts.length) return fallback;
   const area = (f) => { const xs = f.body.map((p) => p[0]), ys = f.body.map((p) => p[1]); return (Math.max(...xs) - Math.min(...xs)) * (Math.max(...ys) - Math.min(...ys)); };
   const f = edgeParts.sort((a, b) => area(b) - area(a))[0];
@@ -442,7 +443,7 @@ export function boardFigure(dump, { width = 640, height = 420, span, azimuth = n
   const tops = dump.footprints.flatMap((f) => {
     const h = (override[f.ref]?.height ?? f.height) || 0;
     const pts = f.body?.length >= 3 ? hull(f.body) : f.pads.map((p) => p.at);
-    return pts.map(([x, y]) => [x, y, h]);
+    return pts.map(([x, y]) => [x, y, h + 3 + h * 0.2]);   // room for the lifted pose, so no part leaves the card
   });
   const F = frameOf(dump.size, { span: span || 300, width, height, azimuth, elevation, thickness: dump.thickness, tops, pad: 30 });
   const flat = [];
@@ -500,6 +501,8 @@ export const PCB_CSS = `
 .pcb-part[data-dim] .iso-edge{stroke:var(--anatomy-lo)}
 .pcb-part:not([data-dim]) .iso-edge{transition:stroke .3s var(--anatomy-ease)}
 .pcb-silk{font-weight:600}
+.iso-stage:focus{outline:none}
+.iso-stage:focus-visible{outline:1px solid var(--anatomy-mid);outline-offset:6px;border-radius:10px}
 .pcb-silk-strip{fill:none!important;stroke:var(--anatomy-mid)!important}
 [data-palette="board"] .pcb-silk-strip{stroke:var(--pcb-silk)!important}
 [data-palette="board"] .pcb-ruler{stroke:var(--pcb-silk);opacity:.7}
@@ -573,12 +576,12 @@ function tick(now) {
   const calm = still.matches;
   const stiff = 170, drag = calm ? 2 * Math.sqrt(170) : 19;
   parts.forEach((p, i) => {
-    const target = liftTarget * (6 + p.h * 1.4) * K * 0.5;
+    const target = liftTarget * (3 + p.h * 0.2) * K;    // must match LIFT in boardFigure, which reserves the headroom
     if (calm) { p.y = target; p.v = 0; }
     else for (let s = 0; s < 4; s++) { p.v += ((target - p.y) * stiff - p.v * drag) * dt / 4; p.y += p.v * dt / 4; }
     p.el.setAttribute("transform", translateAlong(P, [0, 0, p.y]));
   });
-  const moving = parts.some((p) => Math.abs(p.v) > 0.01 || Math.abs(p.y - liftTarget * (6 + p.h * 1.4) * K * 0.5) > 0.01);
+  const moving = parts.some((p) => Math.abs(p.v) > 0.01 || Math.abs(p.y - liftTarget * (3 + p.h * 0.2) * K) > 0.01);
   frame = visible && (touring || moving) ? requestAnimationFrame(tick) : 0;
 }
 const run = () => { if (!frame && visible) { last = 0; frame = requestAnimationFrame(tick); } };

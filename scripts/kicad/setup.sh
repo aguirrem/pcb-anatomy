@@ -77,6 +77,10 @@ for d in "${KICAD10_SYMBOL_DIR:-}/.." /usr/share/kicad /usr/local/share/kicad /A
   [ -d "$d/symbols" ] && { SHARE="$(cd "$d" && pwd)"; break; }
 done
 [ -n "$SHARE" ] && ok "libraries in $SHARE" || miss "KiCad symbol and footprint libraries"
+if [ -n "$SHARE" ]; then
+  if [ -d "$SHARE/3dmodels" ] && [ -n "$(ls -A "$SHARE/3dmodels" 2>/dev/null)" ]; then ok "3D models"
+  else printf '  note    no 3D models: render.py 3D views show bare pads (optional; setup.sh --3d installs them, several GB)\n'; fi
+fi
 
 # KiCad's global library tables: the GUI writes them on first run; headless machines never get them
 if [ -n "$MAJOR" ] && [ -n "$SHARE" ]; then

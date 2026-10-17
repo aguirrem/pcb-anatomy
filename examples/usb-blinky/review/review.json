@@ -58,14 +58,14 @@
     {
       "severity": "info",
       "check": "current",
-      "message": "+3V3: narrowest track 0.38 mm carries about 1.17 A (1 oz outer, 10 \u00b0C rise), 3 vias; needs 0.3 A",
+      "message": "+3V3: narrowest track 0.50 mm carries about 1.45 A (1 oz outer, 10 \u00b0C rise), 2 vias; needs 0.3 A",
       "at": null,
       "refs": []
     },
     {
       "severity": "info",
       "check": "current",
-      "message": "VBUS: narrowest track 0.38 mm carries about 1.17 A (1 oz outer, 10 \u00b0C rise), 0 vias; needs 1.0 A",
+      "message": "VBUS: narrowest track 0.38 mm carries about 1.17 A (1 oz outer, 10 \u00b0C rise), 2 vias; needs 1.0 A",
       "at": null,
       "refs": []
     },

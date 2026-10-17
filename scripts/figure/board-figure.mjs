@@ -9,8 +9,8 @@
 // with flowing dashes and dims the parts not on it, follows the pointer to whatever trace or pad it is
 // over, and lifts every part off its pads on Space or a click. Reduced motion gets a still page.
 // --override takes {"REF": {"height": 2.2, "kind": "block"}} to fix a guessed package.
-import { readFileSync, writeFileSync } from "node:fs";
-import { basename } from "node:path";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { basename, dirname } from "node:path";
 import * as k from "../../kit/anatomy/iso-kit.mjs";
 import { boardFigure, PCB_CSS, liveScript } from "../../kit/pcb.mjs";
 import { kitScript } from "./inline-kit.mjs";
@@ -49,5 +49,6 @@ const body = k.plateHtml({
 const page = k.pageHtml({ title, theme, body, script: kitScript() + liveScript({ P: fig.F.P, K: fig.F.K, tour, nets: dump.nets }), width: width + 10 })
   .replace("</style>", `${PCB_CSS}</style>`);
 const out = flag("out", input.replace(/\.json$/, theme === "light" ? "-light.html" : ".html"));
+mkdirSync(dirname(out), { recursive: true });
 writeFileSync(out, page);
 console.log(`wrote ${out} (${(page.length / 1024).toFixed(0)} KB, tour: ${tour.join(", ")})`);
