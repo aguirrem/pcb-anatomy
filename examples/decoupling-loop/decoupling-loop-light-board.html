@@ -1,0 +1,906 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Decoupling loop</title><style>
+.iso{
+  --anatomy-page:#0b0b0b;--anatomy-card:#131313;--anatomy-text:#a3a3a3;--anatomy-strong:#e6e6e6;--anatomy-muted:#6e6e6e;
+  --anatomy-paper:#131313;--anatomy-face:#1b1b1b;--anatomy-top:#1c1c1c;
+  --anatomy-shade-0:#0f0f0f;--anatomy-shade-1:#121212;--anatomy-shade-2:#151515;--anatomy-shade-3:#181818;
+  --anatomy-lit-top:#262626;--anatomy-lit-shade:#1d1d1d;
+  --anatomy-hi:#d4d4d4;--anatomy-mid:#6a6a6a;--anatomy-lo:#3e3e3e;--anatomy-faint:#2a2a2a;--anatomy-lit:#ffffff;
+  --anatomy-halo:#050505;--anatomy-halo-opacity:.9;--anatomy-dot:#e6e6e6;
+  --anatomy-red:#ff6b6b;--anatomy-green:#6be0a0;--anatomy-blue:#6b9bff;
+  --anatomy-weight:.6px;--anatomy-ease:cubic-bezier(.32,.72,0,1);
+  --anatomy-mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --anatomy-lift:inset 0 1px 0 0 #ffffff0a,inset 0 0 0 1px #ffffff06,0 0 0 1px #00000026,0 1px 1px -.5px #00000014,0 3px 3px -1.5px #00000014,0 6px 6px -3px #00000014,0 12px 12px -6px #00000014;
+}
+.iso[data-theme="light"]{
+  --anatomy-page:#f2f2ef;--anatomy-card:#fbfbfa;--anatomy-text:#57575a;--anatomy-strong:#18181a;--anatomy-muted:#8c8c90;
+  --anatomy-paper:#fbfbfa;--anatomy-face:#ffffff;--anatomy-top:#ffffff;
+  --anatomy-shade-0:#dcdcd9;--anatomy-shade-1:#e5e5e2;--anatomy-shade-2:#ededea;--anatomy-shade-3:#f4f4f1;
+  --anatomy-lit-top:#ffffff;--anatomy-lit-shade:#eeeeeb;
+  --anatomy-hi:#26262a;--anatomy-mid:#8a8a8f;--anatomy-lo:#b4b4b8;--anatomy-faint:#d4d4d6;--anatomy-lit:#000000;
+  --anatomy-halo:#8a8a80;--anatomy-halo-opacity:.32;--anatomy-dot:#3a3a3e;
+  --anatomy-red:#e5484d;--anatomy-green:#30a46c;--anatomy-blue:#3e63dd;
+  --anatomy-lift:inset 0 1px 0 0 #ffffff,0 0 0 1px #0000000f,0 1px 1px -.5px #0000000a,0 3px 3px -1.5px #0000000a,0 6px 6px -3px #0000000a,0 12px 12px -6px #0000000a;
+}
+.iso-svg{display:block;width:100%;height:auto;overflow:visible}
+.iso-svg path,.iso-svg circle{vector-effect:non-scaling-stroke}
+.iso-fill{fill:var(--anatomy-paper);stroke:none}
+.iso-solid[data-lit]>.iso-fill{fill:var(--anatomy-face)}
+.iso-shade,.iso-top{stroke:none}
+.iso-shade[data-shade="0"]{fill:var(--anatomy-shade-0)}
+.iso-shade[data-shade="1"]{fill:var(--anatomy-shade-1)}
+.iso-shade[data-shade="2"]{fill:var(--anatomy-shade-2)}
+.iso-shade[data-shade="3"]{fill:var(--anatomy-shade-3)}
+.iso-top{fill:var(--anatomy-top)}
+.iso-solid[data-lit]>.iso-top{fill:var(--anatomy-lit-top)}
+.iso-solid[data-lit]>.iso-shade{fill:var(--anatomy-lit-shade)}
+.iso-solid[data-seamless]>.iso-shade,.iso-solid[data-seamless]>.iso-top{stroke-width:.4;stroke-linejoin:round}
+.iso-solid[data-seamless]>.iso-shade[data-shade="0"]{stroke:var(--anatomy-shade-0)}
+.iso-solid[data-seamless]>.iso-shade[data-shade="1"]{stroke:var(--anatomy-shade-1)}
+.iso-solid[data-seamless]>.iso-shade[data-shade="2"]{stroke:var(--anatomy-shade-2)}
+.iso-solid[data-seamless]>.iso-shade[data-shade="3"]{stroke:var(--anatomy-shade-3)}
+.iso-solid[data-seamless]>.iso-top{stroke:var(--anatomy-top)}
+.iso-solid[data-seamless][data-lit]>.iso-top{stroke:var(--anatomy-lit-top)}
+.iso-solid[data-seamless][data-lit]>.iso-shade{stroke:var(--anatomy-lit-shade)}
+.iso-solid[data-lit]>.iso-edge{stroke:var(--anatomy-lit)}
+.iso-halo{fill:var(--anatomy-halo);stroke:none;filter:blur(9px);opacity:var(--anatomy-halo-opacity);transform:translateY(3px)}
+.iso-line{fill:none;stroke:var(--anatomy-lo);stroke-width:var(--anatomy-weight);stroke-linecap:round;stroke-linejoin:round}
+.iso-line[data-tone="hi"]{stroke:var(--anatomy-hi)}
+.iso-line[data-tone="mid"]{stroke:var(--anatomy-mid)}
+.iso-line[data-tone="lo"]{stroke:var(--anatomy-lo)}
+.iso-line[data-tone="faint"]{stroke:var(--anatomy-faint)}
+.iso-line[data-tone="lit"]{stroke:var(--anatomy-lit)}
+.iso-line[data-tone="red"]{stroke:var(--anatomy-red)}
+.iso-line[data-tone="green"]{stroke:var(--anatomy-green)}
+.iso-line[data-tone="blue"]{stroke:var(--anatomy-blue)}
+.iso-line[data-dotted]{stroke-dasharray:.01 3.5;stroke-width:1}
+.iso-line[data-dashed]{stroke-dasharray:3 3}
+.iso-line[data-flow]{stroke-dasharray:2 6}
+.iso-wire-end{fill:var(--anatomy-paper);stroke:var(--anatomy-lo);stroke-width:var(--anatomy-weight)}
+.iso-wire[data-tone="hi"] .iso-wire-end{stroke:var(--anatomy-hi)}
+.iso-wire[data-tone="mid"] .iso-wire-end{stroke:var(--anatomy-mid)}
+.iso-wire[data-tone="faint"] .iso-wire-end{stroke:var(--anatomy-faint)}
+.iso-wire[data-tone="lit"] .iso-wire-end{stroke:var(--anatomy-lit)}
+.iso-dots circle{fill:var(--anatomy-dot);stroke:none;opacity:.32}
+.iso-dots[data-tone="hi"] circle{opacity:.85}
+.iso-dots[data-tone="mid"] circle{opacity:.45}
+.iso-dots[data-tone="lo"] circle{opacity:.22}
+.iso-dots[data-tone="faint"] circle{opacity:.12}
+.iso-face-text{fill:var(--anatomy-mid);font-family:var(--anatomy-mono);letter-spacing:.04em}
+.iso-face-text[data-tone="hi"]{fill:var(--anatomy-hi)}
+.iso-face-text[data-tone="lo"]{fill:var(--anatomy-lo)}
+.iso-face-text[data-tone="faint"]{fill:var(--anatomy-faint)}
+.tb-body{fill:var(--anatomy-shade-2);stroke:none}
+.tb-shine{fill:var(--anatomy-top);stroke:none}
+.tb-shade{fill:var(--anatomy-shade-0);stroke:none}
+.tb-ring{fill:none;stroke:var(--anatomy-lo);stroke-width:.45;stroke-linecap:butt;stroke-linejoin:round}
+.tb-ring[data-tone="mid"]{stroke:var(--anatomy-mid)}
+.tb-ring[data-tone="faint"]{stroke:var(--anatomy-faint)}
+.tb-ring[data-tone="hi"]{stroke:var(--anatomy-hi)}
+@keyframes iso-flow{to{stroke-dashoffset:-32}}
+@keyframes iso-pulse{0%,100%{opacity:.18}12%{opacity:1}40%{opacity:.18}}
+.iso-line[data-flow]{animation:iso-flow 1600ms linear infinite}
+.iso-dots circle[data-pulse]{animation:iso-pulse 1600ms steps(1,end) infinite;animation-delay:var(--pulse-at,0ms)}
+.iso-figure{margin:32px 0 36px}
+.iso-plate{position:relative;padding:52px 24px;border-radius:0;background:var(--anatomy-card);box-shadow:0 0 0 1px var(--anatomy-mid);--anatomy-paper:var(--anatomy-card)}
+.iso-plate-corners{position:absolute;inset:18px 20px;pointer-events:none}
+.iso-plate-corner{position:absolute;color:var(--anatomy-muted);font-family:var(--anatomy-mono);font-size:10.5px;line-height:1;letter-spacing:.04em;white-space:nowrap}
+.iso-plate-corner[data-corner="fig"]{top:0;left:0;color:var(--anatomy-text)}
+.iso-plate-corner[data-corner="title"]{top:0;right:0;text-transform:uppercase;letter-spacing:.1em}
+.iso-plate-corner[data-corner="hint"]{bottom:0;left:0;text-transform:uppercase;letter-spacing:.1em}
+.iso-plate-corner[data-corner="readout"]{right:0;bottom:0;color:var(--anatomy-text);font-variant-numeric:tabular-nums}
+.iso-plate .iso-svg{margin:0 auto}
+.iso-legend{display:grid;gap:8px;margin-top:12px;color:var(--anatomy-muted);font-size:13px;line-height:1.55}
+.iso-keys{display:flex;flex-wrap:wrap;gap:6px 18px}
+.iso-key{display:inline-flex;align-items:center;gap:7px}
+.iso-swatch{width:16px;height:10px;flex:none;overflow:visible}
+.iso-swatch path{fill:none;stroke:var(--anatomy-hi);stroke-width:1;vector-effect:non-scaling-stroke;stroke-linejoin:round;stroke-linecap:round}
+.iso-swatch[data-mark="raised"] path,.iso-swatch[data-mark="flat"] path{stroke:var(--anatomy-mid)}
+.iso-swatch[data-mark="lit"] path{stroke:var(--anatomy-lit)}
+.iso-swatch[data-mark="dim"] path{stroke:var(--anatomy-lo)}
+.iso-swatch[data-mark="dotted"] path{stroke-dasharray:.01 3;stroke-width:1.4}
+.iso-swatch[data-mark="dashed"] path{stroke-dasharray:3 2.5}
+.iso-swatch[data-mark="red"] path{stroke:var(--anatomy-red)}
+.iso-swatch[data-mark="green"] path{stroke:var(--anatomy-green)}
+.iso-swatch[data-mark="blue"] path{stroke:var(--anatomy-blue)}
+.iso-swatch-crease{stroke:var(--anatomy-lo)!important}
+@media (max-width:560px){.iso-plate{padding:48px 12px 70px}.iso-plate-corner[data-corner="hint"]{bottom:18px}}
+@media (prefers-reduced-motion:reduce){.iso-line[data-flow],.iso-dots circle[data-pulse]{animation:none}}
+
+*{box-sizing:border-box}
+html{color-scheme:dark}
+body[data-theme="light"]{color-scheme:light}
+body{margin:0;background:var(--anatomy-page);color:var(--anatomy-text);font:14px/1.6 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+.iso-page{width:min(650px,100% - 32px);margin:64px auto 96px}
+
+.pcb-flat{stroke-width:var(--anatomy-weight);stroke-linejoin:round}
+.pcb-flat[data-tone="faint"]{fill:var(--anatomy-paper);stroke:var(--anatomy-faint)}
+.pcb-flat[data-tone="mid"]{fill:var(--anatomy-top);stroke:var(--anatomy-mid)}
+.pcb-flat[data-tone="lo"]{fill:var(--anatomy-shade-0);stroke:var(--anatomy-lo)}
+.pcb-pour{fill:var(--anatomy-shade-3)!important;stroke:var(--anatomy-faint)!important;opacity:.85}
+.pcb-hole{fill:var(--anatomy-halo)!important;stroke:var(--anatomy-lo)!important}
+.pcb-mouth{fill:var(--anatomy-halo);stroke:var(--anatomy-hi);stroke-width:var(--anatomy-weight)}
+.pcb-tongue{fill:var(--anatomy-shade-1);stroke:var(--anatomy-mid);stroke-width:var(--anatomy-weight)}
+.pcb-flow{fill:none;stroke:var(--anatomy-lit);stroke-width:.9;stroke-dasharray:1.5 4;stroke-linecap:round;opacity:0;transition:opacity .4s var(--anatomy-ease)}
+[data-net][data-on]>.pcb-flat,.pcb-flat[data-net][data-on]{fill:var(--anatomy-lit-top);stroke:var(--anatomy-lit)}
+.pcb-flow[data-on]{opacity:.9;animation:pcb-flow 1.1s linear infinite}
+@keyframes pcb-flow{to{stroke-dashoffset:-11}}
+.pcb-part{transition:opacity .3s var(--anatomy-ease)}
+.pcb-part[data-dim] .iso-edge{stroke:var(--anatomy-lo)}
+.pcb-part:not([data-dim]) .iso-edge{transition:stroke .3s var(--anatomy-ease)}
+.pcb-silk{font-weight:600}
+.pcb-silk-strip{fill:none!important;stroke:var(--anatomy-mid)!important}
+[data-palette="board"] .pcb-silk-strip{stroke:var(--pcb-silk)!important}
+[data-palette="board"] .pcb-ruler{stroke:var(--pcb-silk);opacity:.7}
+[data-palette="board"] .pcb-ruler-major{opacity:1;stroke-width:.9}
+.pcb-ruler-major{stroke-width:.9}
+@media (prefers-reduced-motion:reduce){.pcb-flow[data-on]{animation:none;stroke-dasharray:none;opacity:.6}}
+
+[data-palette="board"]{--pcb-mask:#1e5a3a;--pcb-mask-hi:#2a7a50;--pcb-mask-edge:#123a25;--pcb-fr4:#b9a77a;--pcb-copper:#3f8a5c;--pcb-copper-hi:#4aa06b;
+  --pcb-gold:#d9b25a;--pcb-gold-shade:#a9842f;--pcb-tin:#c7c9cc;--pcb-tin-shade:#8f9296;--pcb-epoxy:#2a2a2c;--pcb-epoxy-top:#3a3a3d;--pcb-plastic:#2b2b2e;--pcb-plastic-top:#3c3c40;--pcb-silk:#f2f2ea;--pcb-glow:#ffd36a}
+[data-palette="board"] .pcb-board>.iso-top{fill:var(--pcb-mask)}
+[data-palette="board"] .pcb-board>.iso-fill,[data-palette="board"] .pcb-board>.iso-shade{fill:var(--pcb-fr4)}
+[data-palette="board"] .pcb-board>.iso-edge{stroke:var(--pcb-mask-edge)}
+[data-palette="board"] .pcb-foil{stroke:var(--pcb-gold)}
+[data-palette="board"] .pcb-pour{fill:var(--pcb-mask-hi)!important;stroke:var(--pcb-mask-hi)!important;opacity:.55}
+[data-palette="board"] .pcb-track{fill:var(--pcb-copper);stroke:var(--pcb-copper-hi)}
+[data-palette="board"] .pcb-pad-face,[data-palette="board"] .pcb-via>.pcb-flat:first-child{fill:var(--pcb-gold);stroke:var(--pcb-gold-shade)}
+[data-palette="board"] [data-net][data-on]>.pcb-flat,[data-palette="board"] .pcb-flat[data-net][data-on]{fill:var(--pcb-glow);stroke:#fff3c4}
+[data-palette="board"] .pcb-flow{stroke:#fff3c4}
+[data-palette="board"] .pcb-metal>.iso-top,[data-palette="board"] .pcb-metal>.iso-fill{fill:var(--pcb-tin)}
+[data-palette="board"] .pcb-metal>.iso-shade{fill:var(--pcb-tin-shade)}
+[data-palette="board"] .pcb-gold>.iso-top,[data-palette="board"] .pcb-gold>.iso-fill{fill:var(--pcb-gold)}
+[data-palette="board"] .pcb-gold>.iso-shade{fill:var(--pcb-gold-shade)}
+[data-palette="board"] .pcb-body>.iso-top{fill:var(--pcb-epoxy-top)}
+[data-palette="board"] .pcb-body>.iso-fill,[data-palette="board"] .pcb-body>.iso-shade{fill:var(--pcb-epoxy)}
+[data-palette="board"] .pcb-plastic>.iso-top,[data-palette="board"] .pcb-cap>.iso-top{fill:var(--pcb-plastic-top)}
+[data-palette="board"] .pcb-plastic>.iso-fill,[data-palette="board"] .pcb-plastic>.iso-shade,[data-palette="board"] .pcb-cap>.iso-fill,[data-palette="board"] .pcb-cap>.iso-shade{fill:var(--pcb-plastic)}
+[data-palette="board"] .pcb-housing>.iso-top{fill:#efe8d6}
+[data-palette="board"] .pcb-housing>.iso-fill,[data-palette="board"] .pcb-housing>.iso-shade{fill:#d6cdb6}
+[data-palette="board"] .pcb-axial>.iso-top,[data-palette="board"] .pcb-axial>.iso-fill,[data-palette="board"] .pcb-axial>.iso-shade{fill:#d9c6a0}
+[data-palette="board"] .pcb-disc>.iso-top,[data-palette="board"] .pcb-disc>.iso-fill,[data-palette="board"] .pcb-disc>.iso-shade{fill:#d7893a}
+[data-palette="board"] .pcb-lens>.iso-top{fill:#7be3a0}
+[data-palette="board"] .pcb-lens>.iso-fill,[data-palette="board"] .pcb-lens>.iso-shade{fill:#4caf74}
+[data-palette="board"] .pcb-lens[data-lit]>.iso-top{fill:#c9ffd9}
+[data-palette="board"] .pcb-silk{fill:var(--pcb-silk)}
+[data-palette="board"] .pcb-hole{fill:#1c1c1e!important;stroke:#5a5a5e!important}
+[data-palette="board"] .pcb-mouth{fill:#1c1c1e;stroke:#e9eaec}
+[data-palette="board"] .pcb-tongue{fill:#2b2b2e;stroke:#55555a}
+[data-palette="board"] .iso-solid>.iso-edge{stroke:#0000004d}
+
+.pcb-loop{fill:var(--anatomy-lit-top);stroke:var(--anatomy-lit);stroke-width:.5;stroke-dasharray:2 2.5;opacity:.9}
+.pcb-loop-flow{fill:none;stroke:var(--anatomy-lit);stroke-width:1.1;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1.6 3.6;animation:pcb-flow 0.9s linear infinite}
+[data-palette="board"] .pcb-loop{fill:#ffd36a55;stroke:#ffcf5a}
+[data-palette="board"] .pcb-loop-flow{stroke:#fff1c2}
+@media (prefers-reduced-motion:reduce){.pcb-loop-flow{animation:none}}
+</style></head><body class="iso" data-theme="light"><main class="iso-page"><figure class="iso-figure"><div class="iso-plate"><div class="iso-plate-corners" aria-hidden="true"><span class="iso-plate-corner" data-corner="fig">Fig 2</span><span class="iso-plate-corner" data-corner="title">Decoupling loop</span><span class="iso-plate-corner" data-corner="hint">Hover to slide C1</span><span class="iso-plate-corner" data-corner="readout" data-readout>3.0 mm · 11 mm² · 4.8 nH · 3.0 Ω at 100 MHz</span></div><div class="iso-stage" tabindex="0" role="slider" aria-label="Decoupling capacitor position: arrow keys move C1 along the rails" aria-valuemin="1.0" aria-valuemax="9.5" data-palette="board"><svg xmlns="http://www.w3.org/2000/svg" class="iso-svg" viewBox="0 0 640 400" role="img" aria-label="A small two-layer board. An SOIC-8 on the left takes its supply from two parallel rails, VDD and GND, that run right to a bulk electrolytic capacitor and a two-pin power header. A small ceramic capacitor, C1, bridges the rails and slides along them. The lit rectangle is the current loop C1 closes with the chip's supply pins: the farther C1 sits, the larger the loop and its inductance."><path class="iso-halo" d="M69.4 188.2L65.5 186L62.4 183.4L60.3 180.5L59.3 177.4L59.4 174.3L60.5 171.2L62.7 168.3L65.9 165.8L203.2 74.3L207.2 72.1L211.9 70.4L217 69.2L222.5 68.6L228.1 68.7L233.6 69.3L238.7 70.5L243.3 72.3L570.6 225.9L574.5 228.1L577.6 230.7L579.7 233.6L580.7 236.7L580.6 239.8L579.5 242.9L577.3 245.7L574.1 248.3L436.8 339.8L432.8 342L428.1 343.7L423 344.9L417.5 345.5L411.9 345.4L406.4 344.8L401.3 343.5L396.7 341.8ZM69.4 207.1L65.5 204.9L62.4 202.3L60.3 199.4L59.3 196.3L59.4 193.2L60.5 190.1L62.7 187.2L65.9 184.7L203.2 93.1L207.2 91L211.9 89.3L217 88.1L222.5 87.5L228.1 87.6L233.6 88.2L238.7 89.4L243.3 91.2L570.6 244.8L574.5 247L577.6 249.6L579.7 252.5L580.7 255.6L580.6 258.7L579.5 261.8L577.3 264.6L574.1 267.2L436.8 358.7L432.8 360.9L428.1 362.6L423 363.8L417.5 364.3L411.9 364.3L406.4 363.7L401.3 362.4L396.7 360.7ZM69.4 207.1L65.5 204.9L65.5 186L69.4 188.2ZM65.5 204.9L62.4 202.3L62.4 183.4L65.5 186ZM62.4 202.3L60.3 199.4L60.3 180.5L62.4 183.4ZM60.3 199.4L59.3 196.3L59.3 177.4L60.3 180.5ZM580.7 255.6L580.6 258.7L580.6 239.8L580.7 236.7ZM580.6 258.7L579.5 261.8L579.5 242.9L580.6 239.8ZM579.5 261.8L577.3 264.6L577.3 245.7L579.5 242.9ZM577.3 264.6L574.1 267.2L574.1 248.3L577.3 245.7ZM574.1 267.2L436.8 358.7L436.8 339.8L574.1 248.3ZM436.8 358.7L432.8 360.9L432.8 342L436.8 339.8ZM432.8 360.9L428.1 362.6L428.1 343.7L432.8 342ZM428.1 362.6L423 363.8L423 344.9L428.1 343.7ZM423 363.8L417.5 364.3L417.5 345.5L423 344.9ZM417.5 364.3L411.9 364.3L411.9 345.4L417.5 345.5ZM411.9 364.3L406.4 363.7L406.4 344.8L411.9 345.4ZM406.4 363.7L401.3 362.4L401.3 343.5L406.4 344.8ZM401.3 362.4L396.7 360.7L396.7 341.8L401.3 343.5ZM396.7 360.7L69.4 207.1L69.4 188.2L396.7 341.8Z"/><g class="iso-solid pcb-board"><path class="iso-fill" d="M69.4 188.2L65.5 186L62.4 183.4L60.3 180.5L59.3 177.4L59.4 174.3L60.5 171.2L62.7 168.3L65.9 165.8L203.2 74.3L207.2 72.1L211.9 70.4L217 69.2L222.5 68.6L228.1 68.7L233.6 69.3L238.7 70.5L243.3 72.3L570.6 225.9L574.5 228.1L577.6 230.7L579.7 233.6L580.7 236.7L580.6 239.8L579.5 242.9L577.3 245.7L574.1 248.3L436.8 339.8L432.8 342L428.1 343.7L423 344.9L417.5 345.5L411.9 345.4L406.4 344.8L401.3 343.5L396.7 341.8ZM69.4 207.1L65.5 204.9L62.4 202.3L60.3 199.4L59.3 196.3L59.4 193.2L60.5 190.1L62.7 187.2L65.9 184.7L203.2 93.1L207.2 91L211.9 89.3L217 88.1L222.5 87.5L228.1 87.6L233.6 88.2L238.7 89.4L243.3 91.2L570.6 244.8L574.5 247L577.6 249.6L579.7 252.5L580.7 255.6L580.6 258.7L579.5 261.8L577.3 264.6L574.1 267.2L436.8 358.7L432.8 360.9L428.1 362.6L423 363.8L417.5 364.3L411.9 364.3L406.4 363.7L401.3 362.4L396.7 360.7ZM69.4 207.1L65.5 204.9L65.5 186L69.4 188.2ZM65.5 204.9L62.4 202.3L62.4 183.4L65.5 186ZM62.4 202.3L60.3 199.4L60.3 180.5L62.4 183.4ZM60.3 199.4L59.3 196.3L59.3 177.4L60.3 180.5ZM580.7 255.6L580.6 258.7L580.6 239.8L580.7 236.7ZM580.6 258.7L579.5 261.8L579.5 242.9L580.6 239.8ZM579.5 261.8L577.3 264.6L577.3 245.7L579.5 242.9ZM577.3 264.6L574.1 267.2L574.1 248.3L577.3 245.7ZM574.1 267.2L436.8 358.7L436.8 339.8L574.1 248.3ZM436.8 358.7L432.8 360.9L432.8 342L436.8 339.8ZM432.8 360.9L428.1 362.6L428.1 343.7L432.8 342ZM428.1 362.6L423 363.8L423 344.9L428.1 343.7ZM423 363.8L417.5 364.3L417.5 345.5L423 344.9ZM417.5 364.3L411.9 364.3L411.9 345.4L417.5 345.5ZM411.9 364.3L406.4 363.7L406.4 344.8L411.9 345.4ZM406.4 363.7L401.3 362.4L401.3 343.5L406.4 344.8ZM401.3 362.4L396.7 360.7L396.7 341.8L401.3 343.5ZM396.7 360.7L69.4 207.1L69.4 188.2L396.7 341.8Z"/><path class="iso-shade" data-shade="0" d="M580.7 255.6L580.6 258.7L580.6 239.8L580.7 236.7ZM580.6 258.7L579.5 261.8L579.5 242.9L580.6 239.8ZM579.5 261.8L577.3 264.6L577.3 245.7L579.5 242.9ZM577.3 264.6L574.1 267.2L574.1 248.3L577.3 245.7ZM574.1 267.2L436.8 358.7L436.8 339.8L574.1 248.3ZM436.8 358.7L432.8 360.9L432.8 342L436.8 339.8ZM432.8 360.9L428.1 362.6L428.1 343.7L432.8 342Z"/><path class="iso-shade" data-shade="1" d="M428.1 362.6L423 363.8L423 344.9L428.1 343.7ZM423 363.8L417.5 364.3L417.5 345.5L423 344.9Z"/><path class="iso-shade" data-shade="2" d="M417.5 364.3L411.9 364.3L411.9 345.4L417.5 345.5ZM411.9 364.3L406.4 363.7L406.4 344.8L411.9 345.4ZM406.4 363.7L401.3 362.4L401.3 343.5L406.4 344.8Z"/><path class="iso-shade" data-shade="3" d="M69.4 207.1L65.5 204.9L65.5 186L69.4 188.2ZM65.5 204.9L62.4 202.3L62.4 183.4L65.5 186ZM62.4 202.3L60.3 199.4L60.3 180.5L62.4 183.4ZM60.3 199.4L59.3 196.3L59.3 177.4L60.3 180.5ZM401.3 362.4L396.7 360.7L396.7 341.8L401.3 343.5ZM396.7 360.7L69.4 207.1L69.4 188.2L396.7 341.8Z"/><path class="iso-top" d="M69.4 188.2L65.5 186L62.4 183.4L60.3 180.5L59.3 177.4L59.4 174.3L60.5 171.2L62.7 168.3L65.9 165.8L203.2 74.3L207.2 72.1L211.9 70.4L217 69.2L222.5 68.6L228.1 68.7L233.6 69.3L238.7 70.5L243.3 72.3L570.6 225.9L574.5 228.1L577.6 230.7L579.7 233.6L580.7 236.7L580.6 239.8L579.5 242.9L577.3 245.7L574.1 248.3L436.8 339.8L432.8 342L428.1 343.7L423 344.9L417.5 345.5L411.9 345.4L406.4 344.8L401.3 343.5L396.7 341.8Z"/><path class="iso-line iso-crease" data-tone="faint" d="M580.7 236.7L580.6 239.8L579.5 242.9L577.3 245.7L574.1 248.3L436.8 339.8L432.8 342L428.1 343.7L423 344.9L417.5 345.5L411.9 345.4L406.4 344.8L401.3 343.5L396.7 341.8L69.4 188.2L65.5 186L62.4 183.4L60.3 180.5L59.3 177.4"/><path class="iso-line pcb-foil" data-tone="faint" d="M580.7 254.1L580.6 257.2L579.5 260.2L577.3 263.1L574.1 265.7L436.8 357.2L432.8 359.4L428.1 361.1L423 362.3L417.5 362.8L411.9 362.8L406.4 362.2L401.3 360.9L396.7 359.2L69.4 205.6L65.5 203.4L62.4 200.7L60.3 197.8L59.3 194.8"/><path class="iso-line pcb-foil" data-tone="faint" d="M580.7 238.2L580.6 241.3L579.5 244.4L577.3 247.2L574.1 249.8L436.8 341.3L432.8 343.5L428.1 345.2L423 346.4L417.5 347L411.9 346.9L406.4 346.3L401.3 345.1L396.7 343.3L69.4 189.7L65.5 187.5L62.4 184.9L60.3 182L59.3 178.9"/><path class="iso-line iso-edge" data-tone="mid" d="M59.3 177.4L59.4 174.3L60.5 171.2L62.7 168.3L65.9 165.8L203.2 74.3L207.2 72.1L211.9 70.4L217 69.2L222.5 68.6L228.1 68.7L233.6 69.3L238.7 70.5L243.3 72.3L570.6 225.9L574.5 228.1L577.6 230.7L579.7 233.6L580.7 236.7M580.7 255.6L580.6 258.7L579.5 261.8L577.3 264.6L574.1 267.2L436.8 358.7L432.8 360.9L428.1 362.6L423 363.8L417.5 364.3L411.9 364.3L406.4 363.7L401.3 362.4L396.7 360.7L69.4 207.1L65.5 204.9L62.4 202.3L60.3 199.4L59.3 196.3M59.3 177.4L59.3 196.3M580.7 236.7L580.7 255.6"/></g><g class="pcb-surface"><path class="pcb-loop" data-part="loop" d="M360.9 245.7L350 240.6L384.9 217.3L395.8 222.5Z"/><path class="pcb-flat pcb-copper pcb-track" data-tone="faint" data-net="VDD" fill-rule="evenodd" d="M199.2 168.4L199.7 168.7L200 169.2L199.9 169.6L199.5 170L198.8 170.3L198 170.5L197.2 170.4L196.5 170.2L370.2 251.7L369.7 251.4L369.4 250.9L369.5 250.4L369.9 250L370.6 249.7L371.4 249.6L372.2 249.7L372.9 249.9Z"/><path class="pcb-flat pcb-copper pcb-track" data-tone="faint" data-net="GND" fill-rule="evenodd" d="M234.1 145.1L234.6 145.5L234.8 145.9L234.7 146.4L234.3 146.8L233.7 147.1L232.9 147.2L232.1 147.2L231.3 147L405.1 228.5L404.6 228.1L404.3 227.7L404.4 227.2L404.8 226.8L405.5 226.5L406.3 226.4L407.1 226.4L407.8 226.6Z"/><path class="pcb-flat pcb-copper pcb-track" data-tone="faint" data-net="VDD" fill-rule="evenodd" d="M200.9 169.1L200.2 169.4L199.4 169.5L198.6 169.5L197.9 169.3L197.3 168.9L197.1 168.4L197.2 168L197.6 167.6L196.2 168.5L196.8 168.2L197.6 168.1L198.5 168.1L199.2 168.4L199.7 168.7L200 169.2L199.9 169.6L199.5 170Z"/><path class="pcb-flat pcb-copper pcb-track" data-tone="faint" data-net="GND" fill-rule="evenodd" d="M229.6 146.2L230.3 145.9L231.1 145.8L231.9 145.8L232.7 146.1L233.2 146.4L233.4 146.9L233.3 147.3L232.9 147.8L234.3 146.8L233.7 147.1L232.9 147.2L232.1 147.2L231.3 147L230.8 146.6L230.6 146.1L230.7 145.7L231.1 145.3Z"/><path class="pcb-flat pcb-copper pcb-track" data-tone="faint" data-net="VDD" fill-rule="evenodd" d="M174.3 154L175.1 154.6L175.5 155.4L175.4 156.1L174.7 156.8L173.6 157.3L172.3 157.5L170.9 157.4L169.7 157.1L197 169.9L196.1 169.3L195.7 168.5L195.8 167.7L196.5 167.1L197.6 166.6L198.9 166.4L200.3 166.4L201.5 166.8Z"/><path class="pcb-flat pcb-copper pcb-track" data-tone="faint" data-net="VDD" fill-rule="evenodd" d="M155.2 140.1L155.8 140.8L155.9 141.6L155.4 142.3L154.5 142.9L153.3 143.3L151.9 143.3L150.6 143.1L149.5 142.6L169.1 156.8L168.5 156.1L168.4 155.3L168.9 154.5L169.8 154L171 153.6L172.4 153.6L173.7 153.8L174.8 154.3Z"/><path class="pcb-flat pcb-copper pcb-track" data-tone="faint" data-net="GND" fill-rule="evenodd" d="M206.3 132.7L207.2 133.3L207.6 134L207.4 134.8L206.7 135.5L205.7 136L204.3 136.2L202.9 136.1L201.7 135.7L229 148.5L228.1 147.9L227.7 147.2L227.9 146.4L228.6 145.7L229.6 145.2L231 145L232.4 145.1L233.6 145.5Z"/><path class="pcb-flat pcb-copper pcb-track" data-tone="faint" data-net="GND" fill-rule="evenodd" d="M177.3 124.1L178.3 124.6L179 125.3L179.2 126L178.8 126.8L177.9 127.4L176.7 127.8L175.3 127.8L174 127.6L202.4 135.9L201.3 135.5L200.6 134.8L200.5 134L200.9 133.3L201.7 132.7L202.9 132.3L204.3 132.2L205.7 132.4Z"/><path class="pcb-flat pcb-copper pcb-track" data-tone="faint" data-net="SIG0" fill-rule="evenodd" d="M437.5 301.3L437.4 301L437.6 300.7L437.9 300.5L438.4 300.3L439 300.3L439.5 300.4L439.9 300.6L440.2 300.8L426.9 275.9L427 276.2L426.8 276.5L426.5 276.8L426 276.9L425.4 276.9L424.9 276.8L424.5 276.6L424.2 276.4Z"/><path class="pcb-flat pcb-copper pcb-track" data-tone="faint" data-net="SIG1" fill-rule="evenodd" d="M466 283L465.7 282.7L465.5 282.4L465.6 282.1L465.8 281.8L466.3 281.6L466.8 281.6L467.4 281.6L467.8 281.7L438.1 267.8L438.5 268L438.6 268.3L438.6 268.6L438.3 268.9L437.9 269.1L437.3 269.2L436.8 269.2L436.3 269Z"/><path class="pcb-flat pcb-copper pcb-track" data-tone="faint" data-net="SIG2" fill-rule="evenodd" d="M494.9 264.4L494.3 264.3L493.9 264.1L493.7 263.8L493.6 263.5L493.8 263.2L494.1 263L494.6 262.9L495.2 262.8L449 259.9L449.5 260L449.9 260.2L450.2 260.4L450.2 260.7L450.1 261L449.7 261.3L449.2 261.4L448.7 261.4Z"/><path class="pcb-flat pcb-copper pcb-track" data-tone="faint" data-net="IO1" fill-rule="evenodd" d="M380.5 227.5L380.8 227.8L381 228.1L380.9 228.4L380.6 228.7L380.2 228.8L379.7 228.9L379.1 228.9L378.6 228.8L393.9 235.9L393.6 235.7L393.4 235.4L393.5 235.1L393.7 234.8L394.2 234.6L394.7 234.5L395.2 234.5L395.7 234.7Z"/><path class="pcb-flat pcb-copper pcb-track" data-tone="faint" data-net="IO2" fill-rule="evenodd" d="M368.8 235.3L369.2 235.5L369.3 235.8L369.3 236.1L369 236.4L368.6 236.6L368 236.7L367.5 236.6L367 236.5L382.3 243.7L381.9 243.4L381.8 243.1L381.8 242.8L382.1 242.5L382.5 242.3L383.1 242.3L383.6 242.3L384.1 242.4Z"/><path class="pcb-flat pcb-copper pcb-track" data-tone="faint" data-net="GND" fill-rule="evenodd" d="M476.5 262L476 261.6L475.8 261.2L475.9 260.7L476.3 260.3L476.9 260L477.7 259.9L478.5 260L479.3 260.2L461.8 252L462.3 252.3L462.6 252.8L462.5 253.3L462.1 253.7L461.4 254L460.6 254.1L459.8 254L459.1 253.8Z"/><g class="pcb-pad" data-net="SIG0"><path class="pcb-flat pcb-copper pcb-pad-face" data-tone="mid" fill-rule="evenodd" d="M413.8 273.6L413.2 273.1L413.1 272.5L413.6 271.9L416.3 270.1L417.2 269.7L418.3 269.7L419.3 269.9L437.3 278.4L438 278.9L438 279.5L437.6 280L434.8 281.9L433.9 282.2L432.8 282.3L431.8 282Z"/></g><g class="pcb-pad" data-net="SIG1"><path class="pcb-flat pcb-copper pcb-pad-face" data-tone="mid" fill-rule="evenodd" d="M425.5 265.8L424.8 265.3L424.7 264.7L425.2 264.1L427.9 262.3L428.8 262L429.9 261.9L430.9 262.2L448.9 270.6L449.6 271.1L449.7 271.7L449.2 272.3L446.5 274.1L445.6 274.5L444.5 274.5L443.5 274.3Z"/></g><g class="pcb-pad" data-net="SIG2"><path class="pcb-flat pcb-copper pcb-pad-face" data-tone="mid" fill-rule="evenodd" d="M437.1 258.1L436.4 257.6L436.3 257L436.8 256.4L439.6 254.6L440.5 254.2L441.6 254.2L442.6 254.4L460.6 262.9L461.2 263.4L461.3 264L460.8 264.5L458.1 266.4L457.2 266.7L456.1 266.8L455.1 266.5Z"/></g><g class="pcb-pad" data-net="GND"><path class="pcb-flat pcb-copper pcb-pad-face" data-tone="mid" fill-rule="evenodd" d="M448.7 250.3L448.1 249.8L448 249.2L448.4 248.6L451.2 246.8L452.1 246.5L453.2 246.4L454.2 246.7L472.2 255.1L472.8 255.6L472.9 256.2L472.5 256.8L469.7 258.6L468.8 259L467.7 259L466.7 258.8Z"/></g><g class="pcb-pad" data-net="GND"><path class="pcb-flat pcb-copper pcb-pad-face" data-tone="mid" fill-rule="evenodd" d="M394.7 225L394.1 224.5L394 223.9L394.4 223.3L397.2 221.5L398.1 221.1L399.2 221.1L400.2 221.3L418.2 229.8L418.8 230.3L418.9 230.9L418.5 231.5L415.7 233.3L414.8 233.6L413.7 233.7L412.7 233.4Z"/></g><g class="pcb-pad" data-net="IO1"><path class="pcb-flat pcb-copper pcb-pad-face" data-tone="mid" fill-rule="evenodd" d="M383.1 232.7L382.4 232.2L382.3 231.6L382.8 231.1L385.6 229.2L386.5 228.9L387.6 228.8L388.6 229.1L406.6 237.5L407.2 238L407.3 238.6L406.8 239.2L404.1 241L403.2 241.4L402.1 241.4L401.1 241.2Z"/></g><g class="pcb-pad" data-net="IO2"><path class="pcb-flat pcb-copper pcb-pad-face" data-tone="mid" fill-rule="evenodd" d="M371.4 240.5L370.8 240L370.7 239.4L371.2 238.8L373.9 237L374.8 236.6L375.9 236.6L376.9 236.8L394.9 245.3L395.6 245.8L395.7 246.4L395.2 247L392.5 248.8L391.6 249.1L390.4 249.2L389.4 248.9Z"/></g><g class="pcb-pad" data-net="VDD"><path class="pcb-flat pcb-copper pcb-pad-face" data-tone="mid" fill-rule="evenodd" d="M359.8 248.2L359.2 247.7L359.1 247.1L359.6 246.6L362.3 244.7L363.2 244.4L364.3 244.3L365.3 244.6L383.3 253L383.9 253.5L384 254.1L383.6 254.7L380.8 256.5L379.9 256.9L378.8 256.9L377.8 256.7Z"/></g><g class="pcb-pad" data-net="VDD"><path class="pcb-flat pcb-copper pcb-pad-face" data-tone="mid" fill-rule="evenodd" d="M153.9 150.7L135.3 142L150.9 131.6L169.4 140.3Z"/><path class="pcb-flat pcb-hole" data-tone="lo" fill-rule="evenodd" d="M146.9 138.6L148.6 137.7L150.6 137.2L152.9 137.1L155 137.4L156.9 138.1L158.4 139L159.3 140.1L159.5 141.4L159 142.6L157.8 143.7L156.1 144.5L154.1 145L151.9 145.1L149.7 144.8L147.8 144.2L146.3 143.2L145.4 142.1L145.3 140.8L145.8 139.6Z"/></g><g class="pcb-pad" data-net="GND"><path class="pcb-flat pcb-copper pcb-pad-face" data-tone="mid" fill-rule="evenodd" d="M166.3 121.3L168.7 120.1L171.5 119.3L174.6 118.9L177.7 119L180.7 119.5L183.4 120.5L185.5 121.8L187 123.4L187.7 125.1L187.5 126.8L186.6 128.5L184.9 130L182.6 131.2L179.8 132L176.7 132.4L173.5 132.3L170.5 131.8L167.8 130.9L165.7 129.6L164.2 128L163.6 126.3L163.7 124.5L164.6 122.8Z"/><path class="pcb-flat pcb-hole" data-tone="lo" fill-rule="evenodd" d="M170.2 123.1L171.8 122.2L173.9 121.8L176.1 121.6L178.3 121.9L180.2 122.6L181.7 123.5L182.5 124.7L182.7 125.9L182.2 127.1L181.1 128.2L179.4 129L177.3 129.5L175.1 129.6L172.9 129.3L171 128.7L169.6 127.7L168.7 126.6L168.5 125.3L169 124.1Z"/></g><g class="pcb-pad" data-net="VDD"><path class="pcb-flat pcb-copper pcb-pad-face" data-tone="mid" fill-rule="evenodd" d="M200.6 177.1L183.2 168.9L197.8 159.2L215.3 167.4Z"/><path class="pcb-flat pcb-hole" data-tone="lo" fill-rule="evenodd" d="M194.9 166.1L196.2 165.4L197.9 165L199.6 164.9L201.4 165.1L202.9 165.7L204.1 166.4L204.8 167.3L204.9 168.3L204.5 169.3L203.6 170.1L202.3 170.8L200.6 171.2L198.8 171.3L197.1 171.1L195.6 170.5L194.4 169.8L193.7 168.9L193.6 167.9L194 166.9Z"/></g><g class="pcb-pad" data-net="GND"><path class="pcb-flat pcb-copper pcb-pad-face" data-tone="mid" fill-rule="evenodd" d="M222.6 142.7L224.7 141.6L227.4 140.8L230.3 140.5L233.3 140.5L236.1 141L238.6 141.9L240.6 143.2L242 144.6L242.6 146.3L242.5 147.9L241.6 149.5L240 150.9L237.8 152L235.2 152.8L232.3 153.2L229.3 153.1L226.5 152.6L224 151.7L222 150.5L220.6 149L219.9 147.4L220.1 145.7L221 144.1Z"/><path class="pcb-flat pcb-hole" data-tone="lo" fill-rule="evenodd" d="M226.9 144.7L228.3 144L229.9 143.7L231.7 143.6L233.4 143.8L234.9 144.3L236.1 145.1L236.8 146L237 147L236.6 147.9L235.6 148.8L234.3 149.4L232.7 149.8L230.9 149.9L229.1 149.7L227.6 149.2L226.5 148.4L225.8 147.5L225.6 146.5L226 145.6Z"/></g><g class="pcb-via" data-net="SIG0"><path class="pcb-flat pcb-copper" data-tone="mid" fill-rule="evenodd" d="M435.6 299.4L436.7 298.9L438.1 298.6L439.6 298.6L441 298.9L442.1 299.4L442.8 300.1L443.1 301L442.8 301.8L442.1 302.5L441 303L439.6 303.3L438.1 303.3L436.7 303L435.6 302.5L434.8 301.8L434.6 301L434.8 300.1Z"/><path class="pcb-flat pcb-hole" data-tone="lo" fill-rule="evenodd" d="M437.2 300.1L437.9 299.8L438.9 299.6L439.8 299.8L440.5 300.1L440.9 300.6L440.9 301.1L440.5 301.6L439.7 301.9L438.8 302L437.8 301.9L437.1 301.6L436.7 301.1L436.8 300.5Z"/></g><g class="pcb-via" data-net="SIG1"><path class="pcb-flat pcb-copper" data-tone="mid" fill-rule="evenodd" d="M463.7 280.7L464.8 280.2L466.2 279.9L467.7 279.9L469.1 280.2L470.2 280.7L470.9 281.4L471.2 282.2L470.9 283L470.2 283.8L469.1 284.3L467.7 284.6L466.2 284.6L464.8 284.3L463.7 283.8L462.9 283L462.7 282.2L462.9 281.4Z"/><path class="pcb-flat pcb-hole" data-tone="lo" fill-rule="evenodd" d="M465.3 281.3L466 281L467 280.9L467.9 281L468.6 281.4L469 281.9L469 282.4L468.6 282.9L467.8 283.2L466.9 283.3L466 283.2L465.2 282.8L464.8 282.3L464.9 281.8Z"/></g><g class="pcb-via" data-net="SIG2"><path class="pcb-flat pcb-copper" data-tone="mid" fill-rule="evenodd" d="M491.8 262L492.9 261.4L494.3 261.1L495.8 261.1L497.2 261.4L498.3 262L499 262.7L499.3 263.5L499 264.3L498.3 265L497.2 265.6L495.8 265.9L494.3 265.9L492.9 265.6L491.8 265L491 264.3L490.8 263.5L491 262.7Z"/><path class="pcb-flat pcb-hole" data-tone="lo" fill-rule="evenodd" d="M493.4 262.6L494.2 262.3L495.1 262.2L496 262.3L496.7 262.7L497.1 263.1L497.1 263.7L496.7 264.1L495.9 264.5L495 264.6L494.1 264.4L493.3 264.1L492.9 263.6L493 263.1Z"/></g><g class="pcb-via" data-net="IO1"><path class="pcb-flat pcb-copper" data-tone="mid" fill-rule="evenodd" d="M376.3 226.5L377.4 226L378.8 225.7L380.3 225.7L381.7 226L382.8 226.5L383.6 227.2L383.8 228L383.6 228.8L382.8 229.6L381.7 230.1L380.3 230.4L378.8 230.4L377.4 230.1L376.3 229.6L375.5 228.8L375.3 228L375.5 227.2Z"/><path class="pcb-flat pcb-hole" data-tone="lo" fill-rule="evenodd" d="M377.9 227.1L378.7 226.8L379.6 226.7L380.5 226.8L381.2 227.2L381.6 227.7L381.6 228.2L381.2 228.7L380.4 229L379.5 229.1L378.6 229L377.8 228.6L377.5 228.1L377.5 227.6Z"/></g><g class="pcb-via" data-net="IO2"><path class="pcb-flat pcb-copper" data-tone="mid" fill-rule="evenodd" d="M364.6 234.2L365.8 233.7L367.2 233.4L368.7 233.4L370.1 233.7L371.2 234.2L371.9 235L372.2 235.8L371.9 236.6L371.2 237.3L370.1 237.8L368.7 238.1L367.2 238.1L365.8 237.8L364.6 237.3L363.9 236.6L363.6 235.8L363.9 235Z"/><path class="pcb-flat pcb-hole" data-tone="lo" fill-rule="evenodd" d="M366.3 234.9L367 234.6L368 234.5L368.9 234.6L369.6 234.9L370 235.4L370 235.9L369.6 236.4L368.8 236.7L367.9 236.8L366.9 236.7L366.2 236.4L365.8 235.9L365.8 235.4Z"/></g><g class="pcb-via" data-net="GND"><path class="pcb-flat pcb-copper" data-tone="mid" fill-rule="evenodd" d="M474.6 259.4L475.8 258.9L477.2 258.6L478.6 258.6L480 258.9L481.2 259.4L481.9 260.2L482.2 261L481.9 261.8L481.2 262.5L480 263L478.6 263.3L477.2 263.3L475.8 263L474.6 262.5L473.9 261.8L473.6 261L473.9 260.2Z"/><path class="pcb-flat pcb-hole" data-tone="lo" fill-rule="evenodd" d="M476.3 260.1L477 259.8L478 259.7L478.9 259.8L479.6 260.1L480 260.6L480 261.1L479.5 261.6L478.8 261.9L477.9 262L476.9 261.9L476.2 261.6L475.8 261.1L475.8 260.6Z"/></g><path class="pcb-flat pcb-copper pcb-pad-face" data-tone="mid" fill-rule="evenodd" d="M398.1 315.3L401.5 313.5L405.4 312.2L409.8 311.4L414.5 311.2L419 311.5L423.4 312.5L427.2 313.9L430.4 315.8L432.8 318L434.2 320.4L434.6 323L434 325.6L432.3 328L429.8 330.2L426.4 331.9L422.4 333.3L418 334.1L413.4 334.3L408.8 333.9L404.5 333L400.7 331.6L397.5 329.7L395.1 327.5L393.7 325L393.3 322.4L393.9 319.9L395.6 317.5Z"/><path class="pcb-flat pcb-hole" data-tone="lo" fill-rule="evenodd" d="M401.9 317L404.5 315.6L407.5 314.6L410.8 314L414.3 313.9L417.8 314.1L421.1 314.8L424 315.9L426.4 317.3L428.2 319L429.3 320.9L429.6 322.8L429.1 324.8L427.9 326.6L425.9 328.2L423.4 329.6L420.4 330.6L417 331.2L413.5 331.4L410.1 331.1L406.8 330.4L403.9 329.3L401.4 327.9L399.7 326.2L398.6 324.4L398.3 322.4L398.8 320.5L400 318.6Z"/><path class="pcb-flat pcb-copper pcb-pad-face" data-tone="mid" fill-rule="evenodd" d="M83.9 167.9L87.3 166.1L91.2 164.8L95.6 164L100.2 163.8L104.8 164.1L109.1 165L113 166.5L116.2 168.3L118.6 170.6L120 173L120.4 175.6L119.7 178.2L118.1 180.6L115.5 182.7L112.2 184.5L108.2 185.8L103.8 186.6L99.2 186.8L94.6 186.5L90.3 185.6L86.5 184.1L83.3 182.3L80.9 180.1L79.5 177.6L79.1 175L79.7 172.5L81.4 170Z"/><path class="pcb-flat pcb-hole" data-tone="lo" fill-rule="evenodd" d="M87.7 169.6L90.3 168.2L93.3 167.2L96.6 166.6L100.1 166.4L103.6 166.7L106.9 167.4L109.8 168.5L112.2 169.9L114 171.6L115.1 173.4L115.4 175.4L114.9 177.3L113.7 179.2L111.7 180.8L109.2 182.2L106.2 183.2L102.8 183.8L99.3 183.9L95.9 183.7L92.6 183L89.7 181.9L87.2 180.5L85.4 178.8L84.4 176.9L84.1 175L84.5 173L85.8 171.2Z"/><path class="pcb-flat pcb-copper pcb-pad-face" data-tone="mid" fill-rule="evenodd" d="M210.2 83.7L213.6 81.9L217.6 80.6L222 79.8L226.6 79.6L231.2 79.9L235.5 80.8L239.3 82.3L242.5 84.1L244.9 86.4L246.3 88.8L246.7 91.4L246.1 94L244.4 96.4L241.9 98.5L238.5 100.3L234.6 101.6L230.2 102.4L225.5 102.7L221 102.3L216.6 101.4L212.8 100L209.6 98.1L207.2 95.9L205.8 93.4L205.4 90.8L206 88.3L207.7 85.8Z"/><path class="pcb-flat pcb-hole" data-tone="lo" fill-rule="evenodd" d="M214.1 85.4L216.6 84L219.6 83L223 82.4L226.5 82.2L229.9 82.5L233.2 83.2L236.1 84.3L238.6 85.7L240.3 87.4L241.4 89.3L241.7 91.2L241.2 93.2L240 95L238.1 96.6L235.5 98L232.5 99L229.2 99.6L225.7 99.7L222.2 99.5L218.9 98.8L216 97.7L213.6 96.3L211.8 94.6L210.7 92.7L210.4 90.8L210.9 88.8L212.1 87Z"/><path class="pcb-flat pcb-copper pcb-pad-face" data-tone="mid" fill-rule="evenodd" d="M524.5 231.1L527.8 229.3L531.8 228L536.2 227.2L540.8 227L545.4 227.4L549.7 228.3L553.5 229.7L556.7 231.6L559.1 233.8L560.5 236.3L560.9 238.8L560.3 241.4L558.6 243.8L556.1 246L552.7 247.7L548.8 249.1L544.4 249.9L539.8 250.1L535.2 249.7L530.9 248.8L527 247.4L523.8 245.5L521.4 243.3L520 240.8L519.6 238.3L520.3 235.7L521.9 233.3Z"/><path class="pcb-flat pcb-hole" data-tone="lo" fill-rule="evenodd" d="M528.3 232.8L530.8 231.4L533.8 230.4L537.2 229.8L540.7 229.7L544.1 229.9L547.4 230.6L550.3 231.7L552.8 233.1L554.6 234.8L555.6 236.7L555.9 238.6L555.5 240.6L554.2 242.4L552.3 244.1L549.7 245.4L546.7 246.4L543.4 247L539.9 247.2L536.4 246.9L533.1 246.2L530.2 245.1L527.8 243.7L526 242L524.9 240.2L524.6 238.2L525.1 236.3L526.3 234.4Z"/><path class="pcb-flat pcb-silk-strip" data-tone="faint" fill-rule="evenodd" d="M413.9 215.2L296.1 159.9L302.5 155.7L420.3 211Z"/><path class="iso-line pcb-ruler" data-tone="lo" d="M398.6 207.9L405 203.7M387.7 202.8L394.1 198.6M376.8 197.7L383.2 193.4M365.9 192.6L372.3 188.3M344.1 182.3L350.5 178.1M333.2 177.2L339.6 173M322.3 172.1L328.7 167.8M311.3 167L317.8 162.7"/><path class="iso-line pcb-ruler pcb-ruler-major" data-tone="hi" d="M409.5 213.1L415.9 208.8M355 187.5L361.4 183.2M300.4 161.9L306.8 157.6"/><text class="iso-face-text pcb-silk" data-tone="mid" transform="matrix(0.905 0.425 -0.76 0.506 429.681 199.76)" font-size="7.5" text-anchor="middle">0</text><text class="iso-face-text pcb-silk" data-tone="mid" transform="matrix(0.905 0.425 -0.76 0.506 375.13 174.164)" font-size="7.5" text-anchor="middle">5</text><text class="iso-face-text pcb-silk" data-tone="mid" transform="matrix(0.905 0.425 -0.76 0.506 320.58 148.568)" font-size="7.5" text-anchor="middle">10</text><text class="iso-face-text pcb-silk" data-tone="mid" transform="matrix(0.905 0.425 -0.76 0.506 234.491 196.646)" font-size="8.382352941176471" text-anchor="middle">VDD</text><text class="iso-face-text pcb-silk" data-tone="mid" transform="matrix(0.905 0.425 -0.76 0.506 287.68 161.201)" font-size="8.382352941176471" text-anchor="middle">GND</text><text class="iso-face-text pcb-silk" data-tone="mid" transform="matrix(0.905 0.425 -0.76 0.506 383.052 273.579)" font-size="8.382352941176471" text-anchor="middle">U1</text><text class="iso-face-text pcb-silk" data-tone="mid" transform="matrix(0.905 0.425 -0.76 0.506 196.943 111.399)" font-size="8.382352941176471" text-anchor="middle">J1</text><text class="iso-face-text pcb-silk" data-tone="mid" transform="matrix(0.905 0.425 -0.76 0.506 294.469 146.764)" font-size="8.382352941176471" text-anchor="middle">C2</text><text class="iso-face-text pcb-silk" data-tone="mid" transform="matrix(0.905 0.425 -0.76 0.506 385.2 167.453)" font-size="6.176470588235294" text-anchor="middle">mm from the pins</text></g><path class="pcb-loop-flow" data-part="flow" data-free="" d="M360.4 233.3L350 240.2L360.9 245.3L395.8 222.1L384.9 217L374.6 223.9"/><g class="iso-solid pcb-plastic"><path class="iso-fill" d="M126.9 113.3L173.4 82.3L201.1 95.3L201.1 124.8L154.6 155.8L126.9 142.8Z"/><path class="iso-shade" data-shade="0" d="M201.1 124.8L154.6 155.8L154.6 126.3L201.1 95.3Z"/><path class="iso-shade" data-shade="3" d="M154.6 155.8L126.9 142.8L126.9 113.3L154.6 126.3Z"/><path class="iso-top" d="M154.6 126.3L126.9 113.3L173.4 82.3L201.1 95.3Z"/><path class="iso-line iso-crease" data-tone="faint" d="M201.1 95.3L154.6 126.3L126.9 113.3"/><path class="iso-line iso-bevel" data-tone="faint" d="M201.1 95.3L154.5 125.5L126.9 113.3"/><path class="iso-line iso-edge" data-tone="hi" d="M126.9 113.3L173.4 82.3L201.1 95.3M201.1 124.8L154.6 155.8L126.9 142.8M126.9 113.3L126.9 142.8M201.1 95.3L201.1 124.8"/></g><g class="iso-solid pcb-gold"><path class="iso-fill" d="M169.2 31.9L175.1 28L182 31.3L182 96.3L176.2 100.2L169.2 96.9Z"/><path class="iso-shade" data-shade="0" d="M182 96.3L176.2 100.2L176.2 35.2L182 31.3Z"/><path class="iso-shade" data-shade="3" d="M176.2 100.2L169.2 96.9L169.2 31.9L176.2 35.2Z"/><path class="iso-top" d="M176.2 35.2L169.2 31.9L175.1 28L182 31.3Z"/><path class="iso-line iso-crease" data-tone="faint" d="M182 31.3L176.2 35.2L169.2 31.9"/><path class="iso-line iso-edge" data-tone="hi" d="M169.2 31.9L175.1 28L182 31.3M182 96.3L176.2 100.2L169.2 96.9M169.2 31.9L169.2 96.9M182 31.3L182 96.3"/></g><g class="iso-solid pcb-gold"><path class="iso-fill" d="M172 25.9L175.3 23.7L179.2 25.5L179.2 31.5L175.9 33.6L172 31.8Z"/><path class="iso-shade" data-shade="0" d="M179.2 31.5L175.9 33.6L175.9 27.7L179.2 25.5Z"/><path class="iso-shade" data-shade="3" d="M175.9 33.6L172 31.8L172 25.9L175.9 27.7Z"/><path class="iso-top" d="M175.9 27.7L172 25.9L175.3 23.7L179.2 25.5Z"/><path class="iso-line iso-crease" data-tone="faint" d="M179.2 25.5L175.9 27.7L172 25.9"/><path class="iso-line iso-edge" data-tone="hi" d="M172 25.9L175.3 23.7L179.2 25.5M179.2 31.5L175.9 33.6L172 31.8M172 25.9L172 31.8M179.2 25.5L179.2 31.5"/></g><g class="iso-solid pcb-gold"><path class="iso-fill" d="M145.9 47.4L151.8 43.5L158.8 46.8L158.8 111.8L152.9 115.7L145.9 112.4Z"/><path class="iso-shade" data-shade="0" d="M158.8 111.8L152.9 115.7L152.9 50.7L158.8 46.8Z"/><path class="iso-shade" data-shade="3" d="M152.9 115.7L145.9 112.4L145.9 47.4L152.9 50.7Z"/><path class="iso-top" d="M152.9 50.7L145.9 47.4L151.8 43.5L158.8 46.8Z"/><path class="iso-line iso-crease" data-tone="faint" d="M158.8 46.8L152.9 50.7L145.9 47.4"/><path class="iso-line iso-edge" data-tone="hi" d="M145.9 47.4L151.8 43.5L158.8 46.8M158.8 111.8L152.9 115.7L145.9 112.4M145.9 47.4L145.9 112.4M158.8 46.8L158.8 111.8"/></g><g class="iso-solid pcb-gold"><path class="iso-fill" d="M148.7 41.4L152 39.2L156 41L156 46.9L152.7 49.1L148.7 47.3Z"/><path class="iso-shade" data-shade="0" d="M156 46.9L152.7 49.1L152.7 43.2L156 41Z"/><path class="iso-shade" data-shade="3" d="M152.7 49.1L148.7 47.3L148.7 41.4L152.7 43.2Z"/><path class="iso-top" d="M152.7 43.2L148.7 41.4L152 39.2L156 41Z"/><path class="iso-line iso-crease" data-tone="faint" d="M156 41L152.7 43.2L148.7 41.4"/><path class="iso-line iso-edge" data-tone="hi" d="M148.7 41.4L152 39.2L156 41M156 46.9L152.7 49.1L148.7 47.3M148.7 41.4L148.7 47.3M156 41L156 46.9"/></g><g class="iso-solid pcb-plastic"><path class="iso-fill" d="M164.9 152.5L166 151.1L207.2 123.6L209.5 122.8L212.2 122.6L214.7 123.3L263.8 146.3L265.4 147.6L265.7 149.1L265.7 156.2L264.5 157.6L223.3 185.1L221 185.9L218.3 186.1L215.8 185.4L166.7 162.4L165.1 161.1L164.9 159.6Z"/><path class="iso-shade" data-shade="0" d="M223.3 185.1L221 185.9L221 178.9L223.3 178ZM265.7 156.2L264.5 157.6L264.5 150.5L265.7 149.1ZM264.5 157.6L223.3 185.1L223.3 178L264.5 150.5Z"/><path class="iso-shade" data-shade="1" d="M221 185.9L218.3 186.1L218.3 179L221 178.9Z"/><path class="iso-shade" data-shade="2" d="M218.3 186.1L215.8 185.4L215.8 178.3L218.3 179Z"/><path class="iso-shade" data-shade="3" d="M215.8 185.4L166.7 162.4L166.7 155.3L215.8 178.3ZM166.7 162.4L165.1 161.1L165.1 154L166.7 155.3ZM165.1 161.1L164.9 159.6L164.9 152.5L165.1 154Z"/><path class="iso-top" d="M223.3 178L221 178.9L218.3 179L215.8 178.3L166.7 155.3L165.1 154L164.9 152.5L166 151.1L207.2 123.6L209.5 122.8L212.2 122.6L214.7 123.3L263.8 146.3L265.4 147.6L265.7 149.1L264.5 150.5Z"/><path class="iso-line iso-crease" data-tone="faint" d="M265.7 149.1L264.5 150.5L223.3 178L221 178.9L218.3 179L215.8 178.3L166.7 155.3L165.1 154L164.9 152.5"/><path class="iso-line iso-edge" data-tone="mid" d="M164.9 152.5L166 151.1L207.2 123.6L209.5 122.8L212.2 122.6L214.7 123.3L263.8 146.3L265.4 147.6L265.7 149.1M265.7 156.2L264.5 157.6L223.3 185.1L221 185.9L218.3 186.1L215.8 185.4L166.7 162.4L165.1 161.1L164.9 159.6M164.9 152.5L164.9 159.6M265.7 149.1L265.7 156.2"/></g><g class="iso-solid pcb-metal"><path class="iso-fill" d="M179.7 66.5L180 64.3L180.8 62.1L182 59.9L183.6 57.9L185.6 56L188 54.2L190.7 52.6L193.8 51.1L197.1 49.9L200.6 48.8L204.3 48L208.2 47.5L212.2 47.1L216.2 47.1L220.1 47.3L224 47.7L227.9 48.4L231.5 49.3L235 50.4L238.1 51.7L241.1 53.3L243.6 55L245.9 56.8L247.7 58.8L249.2 60.9L250.2 63L250.7 65.2L250.9 67.5L250.9 151.3L250.5 153.5L249.8 155.7L248.6 157.9L246.9 159.9L244.9 161.8L242.5 163.6L239.8 165.2L236.8 166.7L233.4 167.9L229.9 169L226.2 169.8L222.3 170.3L218.4 170.6L214.4 170.7L210.4 170.5L206.5 170.1L202.7 169.4L199 168.5L195.6 167.4L192.4 166.1L189.5 164.5L186.9 162.8L184.7 161L182.8 159L181.4 156.9L180.4 154.8L179.8 152.5L179.7 150.3Z"/><path class="iso-shade" data-shade="0" d="M250.9 151.3L250.5 153.5L250.5 69.7L250.9 67.5ZM250.5 153.5L249.8 155.7L249.8 71.9L250.5 69.7ZM249.8 155.7L248.6 157.9L248.6 74L249.8 71.9ZM248.6 157.9L246.9 159.9L246.9 76.1L248.6 74ZM246.9 159.9L244.9 161.8L244.9 78L246.9 76.1ZM244.9 161.8L242.5 163.6L242.5 79.8L244.9 78ZM242.5 163.6L239.8 165.2L239.8 81.4L242.5 79.8ZM239.8 165.2L236.8 166.7L236.8 82.9L239.8 81.4ZM236.8 166.7L233.4 167.9L233.4 84.1L236.8 82.9Z"/><path class="iso-shade" data-shade="1" d="M233.4 167.9L229.9 169L229.9 85.1L233.4 84.1ZM229.9 169L226.2 169.8L226.2 85.9L229.9 85.1ZM226.2 169.8L222.3 170.3L222.3 86.5L226.2 85.9ZM222.3 170.3L218.4 170.6L218.4 86.8L222.3 86.5ZM218.4 170.6L214.4 170.7L214.4 86.9L218.4 86.8Z"/><path class="iso-shade" data-shade="2" d="M214.4 170.7L210.4 170.5L210.4 86.7L214.4 86.9ZM210.4 170.5L206.5 170.1L206.5 86.3L210.4 86.7ZM206.5 170.1L202.7 169.4L202.7 85.6L206.5 86.3ZM202.7 169.4L199 168.5L199 84.7L202.7 85.6Z"/><path class="iso-shade" data-shade="3" d="M199 168.5L195.6 167.4L195.6 83.6L199 84.7ZM195.6 167.4L192.4 166.1L192.4 82.2L195.6 83.6ZM192.4 166.1L189.5 164.5L189.5 80.7L192.4 82.2ZM189.5 164.5L186.9 162.8L186.9 79L189.5 80.7ZM186.9 162.8L184.7 161L184.7 77.1L186.9 79ZM184.7 161L182.8 159L182.8 75.2L184.7 77.1ZM182.8 159L181.4 156.9L181.4 73.1L182.8 75.2ZM181.4 156.9L180.4 154.8L180.4 70.9L181.4 73.1ZM180.4 154.8L179.8 152.5L179.8 68.7L180.4 70.9ZM179.8 152.5L179.7 150.3L179.7 66.5L179.8 68.7Z"/><path class="iso-top" d="M188 54.2L190.7 52.6L193.8 51.1L197.1 49.9L200.6 48.8L204.3 48L208.2 47.5L212.2 47.1L216.2 47.1L220.1 47.3L224 47.7L227.9 48.4L231.5 49.3L235 50.4L238.1 51.7L241.1 53.3L243.6 55L245.9 56.8L247.7 58.8L249.2 60.9L250.2 63L250.7 65.2L250.9 67.5L250.5 69.7L249.8 71.9L248.6 74L246.9 76.1L244.9 78L242.5 79.8L239.8 81.4L236.8 82.9L233.4 84.1L229.9 85.1L226.2 85.9L222.3 86.5L218.4 86.8L214.4 86.9L210.4 86.7L206.5 86.3L202.7 85.6L199 84.7L195.6 83.6L192.4 82.2L189.5 80.7L186.9 79L184.7 77.1L182.8 75.2L181.4 73.1L180.4 70.9L179.8 68.7L179.7 66.5L180 64.3L180.8 62.1L182 59.9L183.6 57.9L185.6 56Z"/><path class="iso-line iso-crease" data-tone="faint" d="M250.9 67.5L250.5 69.7L249.8 71.9L248.6 74L246.9 76.1L244.9 78L242.5 79.8L239.8 81.4L236.8 82.9L233.4 84.1L229.9 85.1L226.2 85.9L222.3 86.5L218.4 86.8L214.4 86.9L210.4 86.7L206.5 86.3L202.7 85.6L199 84.7L195.6 83.6L192.4 82.2L189.5 80.7L186.9 79L184.7 77.1L182.8 75.2L181.4 73.1L180.4 70.9L179.8 68.7L179.7 66.5"/><path class="iso-line iso-bevel" data-tone="faint" d="M250.9 67.5L248.8 69.6L248.1 71.7L247 73.7L245.4 75.6L243.5 77.5L241.2 79.2L238.6 80.7L235.7 82.1L232.6 83.3L229.2 84.3L225.7 85L222 85.6L218.2 85.9L214.4 85.9L210.6 85.8L206.9 85.3L203.3 84.7L199.8 83.8L196.5 82.8L193.5 81.5L190.7 80L188.2 78.4L186.1 76.7L184.4 74.8L183 72.8L182 70.7L181.5 68.6L179.7 66.5"/><path class="iso-line" data-tone="faint" d="M250.9 77.6L250.8 79.2L250.4 80.7L249.9 82.3L249.1 83.8L248.2 85.2L247 86.6L245.6 88L244.1 89.3L242.3 90.5L240.4 91.7L238.4 92.7L236.2 93.7L233.9 94.6L231.4 95.3L228.9 96L226.3 96.5L223.6 97L220.8 97.3L218.1 97.5L215.3 97.5L212.5 97.5L209.7 97.3L207 97L204.3 96.5L201.6 96L199.1 95.3L196.7 94.6L194.3 93.7L192.1 92.7L190.1 91.7L188.2 90.5L186.5 89.3L184.9 88L183.5 86.6L182.4 85.2L181.4 83.8L180.6 82.3L180.1 80.7L179.8 79.2L179.7 77.6"/><path class="iso-line iso-edge" data-tone="hi" d="M179.7 66.5L180 64.3L180.8 62.1L182 59.9L183.6 57.9L185.6 56L188 54.2L190.7 52.6L193.8 51.1L197.1 49.9L200.6 48.8L204.3 48L208.2 47.5L212.2 47.1L216.2 47.1L220.1 47.3L224 47.7L227.9 48.4L231.5 49.3L235 50.4L238.1 51.7L241.1 53.3L243.6 55L245.9 56.8L247.7 58.8L249.2 60.9L250.2 63L250.7 65.2L250.9 67.5M250.9 151.3L250.5 153.5L249.8 155.7L248.6 157.9L246.9 159.9L244.9 161.8L242.5 163.6L239.8 165.2L236.8 166.7L233.4 167.9L229.9 169L226.2 169.8L222.3 170.3L218.4 170.6L214.4 170.7L210.4 170.5L206.5 170.1L202.7 169.4L199 168.5L195.6 167.4L192.4 166.1L189.5 164.5L186.9 162.8L184.7 161L182.8 159L181.4 156.9L180.4 154.8L179.8 152.5L179.7 150.3M250.9 67.5L250.9 151.3M179.7 66.5L179.7 150.3"/></g><path class="iso-line" data-tone="lo" d="M242.5 79.8L188 54.2M192.4 82.2L238.1 51.7"/><g data-part="cap"><path class="pcb-flat pcb-copper pcb-track" data-tone="faint" data-net="VDD" fill-rule="evenodd" d="M362 234.6L361.4 234.9L360.6 235L359.7 234.9L359 234.7L358.5 234.4L358.2 233.9L358.3 233.4L358.7 233L348.4 239.9L349 239.6L349.8 239.5L350.7 239.6L351.4 239.8L351.9 240.1L352.1 240.6L352.1 241.1L351.7 241.5Z"/><path class="pcb-flat pcb-copper pcb-track" data-tone="faint" data-net="GND" fill-rule="evenodd" d="M372.9 223.6L373.6 223.3L374.4 223.2L375.2 223.2L375.9 223.4L376.4 223.8L376.7 224.2L376.6 224.7L376.2 225.1L386.5 218.2L385.9 218.5L385.1 218.6L384.3 218.6L383.5 218.4L383 218L382.8 217.6L382.9 217.1L383.3 216.7Z"/><g class="pcb-pad" data-net="VDD"><path class="pcb-flat pcb-copper pcb-pad-face" data-tone="mid" fill-rule="evenodd" d="M353.5 235.1L352.6 234.3L352.4 233.4L353.1 232.6L357.2 229.8L358.6 229.3L360.3 229.2L361.8 229.6L367.2 232.2L368.2 232.9L368.3 233.8L367.6 234.7L363.5 237.4L362.1 238L360.5 238L359 237.6Z"/></g><g class="pcb-pad" data-net="GND"><path class="pcb-flat pcb-copper pcb-pad-face" data-tone="mid" fill-rule="evenodd" d="M367.7 225.6L366.8 224.9L366.6 223.9L367.3 223.1L371.4 220.4L372.8 219.8L374.4 219.7L375.9 220.1L381.4 222.7L382.4 223.5L382.5 224.4L381.8 225.2L377.7 228L376.3 228.5L374.7 228.6L373.2 228.2Z"/></g><g class="iso-solid pcb-body" data-lit=""><path class="iso-fill" d="M358.4 220.4L367.4 214.3L376.5 218.6L376.5 228.2L367.5 234.2L358.4 230Z"/><path class="iso-shade" data-shade="0" d="M376.5 228.2L367.5 234.2L367.5 224.6L376.5 218.6Z"/><path class="iso-shade" data-shade="3" d="M367.5 234.2L358.4 230L358.4 220.4L367.5 224.6Z"/><path class="iso-top" d="M367.5 224.6L358.4 220.4L367.4 214.3L376.5 218.6Z"/><path class="iso-line iso-crease" data-tone="faint" d="M376.5 218.6L367.5 224.6L358.4 220.4"/><path class="iso-line iso-edge" data-tone="hi" d="M358.4 220.4L367.4 214.3L376.5 218.6M376.5 228.2L367.5 234.2L358.4 230M358.4 220.4L358.4 230M376.5 218.6L376.5 228.2"/></g><g class="iso-solid pcb-metal"><path class="iso-fill" d="M355.3 222.1L358.3 220.1L367.6 224.5L367.6 234.5L364.5 236.5L355.3 232.2Z"/><path class="iso-shade" data-shade="0" d="M367.6 234.5L364.5 236.5L364.5 226.5L367.6 224.5Z"/><path class="iso-shade" data-shade="3" d="M364.5 236.5L355.3 232.2L355.3 222.1L364.5 226.5Z"/><path class="iso-top" d="M364.5 226.5L355.3 222.1L358.3 220.1L367.6 224.5Z"/><path class="iso-line iso-crease" data-tone="faint" d="M367.6 224.5L364.5 226.5L355.3 222.1"/><path class="iso-line iso-bevel" data-tone="faint" d="M367.6 224.5L364.5 226.2L355.3 222.1"/><path class="iso-line iso-edge" data-tone="hi" d="M355.3 222.1L358.3 220.1L367.6 224.5M367.6 234.5L364.5 236.5L355.3 232.2M355.3 222.1L355.3 232.2M367.6 224.5L367.6 234.5"/></g><g class="iso-solid pcb-metal"><path class="iso-fill" d="M367.4 214.1L370.4 212.1L379.6 216.4L379.6 226.5L376.6 228.5L367.4 224.1Z"/><path class="iso-shade" data-shade="0" d="M379.6 226.5L376.6 228.5L376.6 218.4L379.6 216.4Z"/><path class="iso-shade" data-shade="3" d="M376.6 228.5L367.4 224.1L367.4 214.1L376.6 218.4Z"/><path class="iso-top" d="M376.6 218.4L367.4 214.1L370.4 212.1L379.6 216.4Z"/><path class="iso-line iso-crease" data-tone="faint" d="M379.6 216.4L376.6 218.4L367.4 214.1"/><path class="iso-line iso-bevel" data-tone="faint" d="M379.6 216.4L376.6 218.2L367.4 214.1"/><path class="iso-line iso-edge" data-tone="hi" d="M367.4 214.1L370.4 212.1L379.6 216.4M379.6 226.5L376.6 228.5L367.4 224.1M367.4 214.1L367.4 224.1M379.6 216.4L379.6 226.5"/></g><text class="iso-face-text pcb-silk" data-tone="mid" transform="matrix(0.905 0.425 -0.76 0.506 350.003 220.645)" font-size="8.382352941176471" text-anchor="middle">C1</text></g><g class="iso-solid pcb-metal"><path class="iso-fill" d="M398.1 224.3L402 221.7L412.6 226.7L412.6 228.5L408.8 231.1L398.1 226.1Z"/><path class="iso-shade" data-shade="0" d="M412.6 228.5L408.8 231.1L408.8 229.3L412.6 226.7Z"/><path class="iso-shade" data-shade="3" d="M408.8 231.1L398.1 226.1L398.1 224.3L408.8 229.3Z"/><path class="iso-top" d="M408.8 229.3L398.1 224.3L402 221.7L412.6 226.7Z"/><path class="iso-line iso-crease" data-tone="faint" d="M412.6 226.7L408.8 229.3L398.1 224.3"/><path class="iso-line iso-edge" data-tone="mid" d="M398.1 224.3L402 221.7L412.6 226.7M412.6 228.5L408.8 231.1L398.1 226.1M398.1 224.3L398.1 226.1M412.6 226.7L412.6 228.5"/></g><g class="iso-solid pcb-metal"><path class="iso-fill" d="M408.8 223.4L412.6 220.8L414.3 221.6L414.3 229.3L410.4 231.8L408.8 231.1Z"/><path class="iso-shade" data-shade="0" d="M414.3 229.3L410.4 231.8L410.4 224.1L414.3 221.6Z"/><path class="iso-shade" data-shade="3" d="M410.4 231.8L408.8 231.1L408.8 223.4L410.4 224.1Z"/><path class="iso-top" d="M410.4 224.1L408.8 223.4L412.6 220.8L414.3 221.6Z"/><path class="iso-line iso-crease" data-tone="faint" d="M414.3 221.6L410.4 224.1L408.8 223.4"/><path class="iso-line iso-edge" data-tone="mid" d="M408.8 223.4L412.6 220.8L414.3 221.6M414.3 229.3L410.4 231.8L408.8 231.1M408.8 223.4L408.8 231.1M414.3 221.6L414.3 229.3"/></g><g class="iso-solid pcb-metal"><path class="iso-fill" d="M408.8 223.4L412.6 220.8L414.1 221.5L414.1 223.3L410.3 225.8L408.8 225.1Z"/><path class="iso-shade" data-shade="0" d="M414.1 223.3L410.3 225.8L410.3 224.1L414.1 221.5Z"/><path class="iso-shade" data-shade="3" d="M410.3 225.8L408.8 225.1L408.8 223.4L410.3 224.1Z"/><path class="iso-top" d="M410.3 224.1L408.8 223.4L412.6 220.8L414.1 221.5Z"/><path class="iso-line iso-crease" data-tone="faint" d="M414.1 221.5L410.3 224.1L408.8 223.4"/><path class="iso-line iso-edge" data-tone="mid" d="M408.8 223.4L412.6 220.8L414.1 221.5M414.1 223.3L410.3 225.8L408.8 225.1M408.8 223.4L408.8 225.1M414.1 221.5L414.1 223.3"/></g><g class="iso-solid pcb-metal"><path class="iso-fill" d="M386.5 232.1L390.4 229.5L401 234.5L401 236.3L397.2 238.8L386.5 233.8Z"/><path class="iso-shade" data-shade="0" d="M401 236.3L397.2 238.8L397.2 237.1L401 234.5Z"/><path class="iso-shade" data-shade="3" d="M397.2 238.8L386.5 233.8L386.5 232.1L397.2 237.1Z"/><path class="iso-top" d="M397.2 237.1L386.5 232.1L390.4 229.5L401 234.5Z"/><path class="iso-line iso-crease" data-tone="faint" d="M401 234.5L397.2 237.1L386.5 232.1"/><path class="iso-line iso-edge" data-tone="mid" d="M386.5 232.1L390.4 229.5L401 234.5M401 236.3L397.2 238.8L386.5 233.8M386.5 232.1L386.5 233.8M401 234.5L401 236.3"/></g><g class="iso-solid pcb-metal"><path class="iso-fill" d="M397.2 231.1L401 228.6L402.6 229.3L402.6 237L398.8 239.6L397.2 238.8Z"/><path class="iso-shade" data-shade="0" d="M402.6 237L398.8 239.6L398.8 231.9L402.6 229.3Z"/><path class="iso-shade" data-shade="3" d="M398.8 239.6L397.2 238.8L397.2 231.1L398.8 231.9Z"/><path class="iso-top" d="M398.8 231.9L397.2 231.1L401 228.6L402.6 229.3Z"/><path class="iso-line iso-crease" data-tone="faint" d="M402.6 229.3L398.8 231.9L397.2 231.1"/><path class="iso-line iso-edge" data-tone="mid" d="M397.2 231.1L401 228.6L402.6 229.3M402.6 237L398.8 239.6L397.2 238.8M397.2 231.1L397.2 238.8M402.6 229.3L402.6 237"/></g><g class="iso-solid pcb-metal"><path class="iso-fill" d="M397.2 231.1L401 228.6L402.5 229.2L402.5 231L398.6 233.6L397.2 232.9Z"/><path class="iso-shade" data-shade="0" d="M402.5 231L398.6 233.6L398.6 231.8L402.5 229.2Z"/><path class="iso-shade" data-shade="3" d="M398.6 233.6L397.2 232.9L397.2 231.1L398.6 231.8Z"/><path class="iso-top" d="M398.6 231.8L397.2 231.1L401 228.6L402.5 229.2Z"/><path class="iso-line iso-crease" data-tone="faint" d="M402.5 229.2L398.6 231.8L397.2 231.1"/><path class="iso-line iso-edge" data-tone="mid" d="M397.2 231.1L401 228.6L402.5 229.2M402.5 231L398.6 233.6L397.2 232.9M397.2 231.1L397.2 232.9M402.5 229.2L402.5 231"/></g><g class="iso-solid pcb-metal"><path class="iso-fill" d="M374.9 239.8L378.7 237.2L389.4 242.2L389.4 244L385.5 246.6L374.9 241.6Z"/><path class="iso-shade" data-shade="0" d="M389.4 244L385.5 246.6L385.5 244.8L389.4 242.2Z"/><path class="iso-shade" data-shade="3" d="M385.5 246.6L374.9 241.6L374.9 239.8L385.5 244.8Z"/><path class="iso-top" d="M385.5 244.8L374.9 239.8L378.7 237.2L389.4 242.2Z"/><path class="iso-line iso-crease" data-tone="faint" d="M389.4 242.2L385.5 244.8L374.9 239.8"/><path class="iso-line iso-edge" data-tone="mid" d="M374.9 239.8L378.7 237.2L389.4 242.2M389.4 244L385.5 246.6L374.9 241.6M374.9 239.8L374.9 241.6M389.4 242.2L389.4 244"/></g><g class="iso-solid pcb-metal"><path class="iso-fill" d="M385.5 238.9L389.4 236.3L391 237.1L391 244.8L387.2 247.3L385.5 246.6Z"/><path class="iso-shade" data-shade="0" d="M391 244.8L387.2 247.3L387.2 239.6L391 237.1Z"/><path class="iso-shade" data-shade="3" d="M387.2 247.3L385.5 246.6L385.5 238.9L387.2 239.6Z"/><path class="iso-top" d="M387.2 239.6L385.5 238.9L389.4 236.3L391 237.1Z"/><path class="iso-line iso-crease" data-tone="faint" d="M391 237.1L387.2 239.6L385.5 238.9"/><path class="iso-line iso-edge" data-tone="mid" d="M385.5 238.9L389.4 236.3L391 237.1M391 244.8L387.2 247.3L385.5 246.6M385.5 238.9L385.5 246.6M391 237.1L391 244.8"/></g><g class="iso-solid pcb-metal"><path class="iso-fill" d="M385.5 238.9L389.4 236.3L390.8 237L390.8 238.8L387 241.3L385.5 240.6Z"/><path class="iso-shade" data-shade="0" d="M390.8 238.8L387 241.3L387 239.6L390.8 237Z"/><path class="iso-shade" data-shade="3" d="M387 241.3L385.5 240.6L385.5 238.9L387 239.6Z"/><path class="iso-top" d="M387 239.6L385.5 238.9L389.4 236.3L390.8 237Z"/><path class="iso-line iso-crease" data-tone="faint" d="M390.8 237L387 239.6L385.5 238.9"/><path class="iso-line iso-edge" data-tone="mid" d="M385.5 238.9L389.4 236.3L390.8 237M390.8 238.8L387 241.3L385.5 240.6M385.5 238.9L385.5 240.6M390.8 237L390.8 238.8"/></g><g class="iso-solid pcb-metal"><path class="iso-fill" d="M363.3 247.6L367.1 245L377.7 250L377.7 251.8L373.9 254.3L363.3 249.3Z"/><path class="iso-shade" data-shade="0" d="M377.7 251.8L373.9 254.3L373.9 252.5L377.7 250Z"/><path class="iso-shade" data-shade="3" d="M373.9 254.3L363.3 249.3L363.3 247.6L373.9 252.5Z"/><path class="iso-top" d="M373.9 252.5L363.3 247.6L367.1 245L377.7 250Z"/><path class="iso-line iso-crease" data-tone="faint" d="M377.7 250L373.9 252.5L363.3 247.6"/><path class="iso-line iso-edge" data-tone="mid" d="M363.3 247.6L367.1 245L377.7 250M377.7 251.8L373.9 254.3L363.3 249.3M363.3 247.6L363.3 249.3M377.7 250L377.7 251.8"/></g><g class="iso-solid pcb-metal"><path class="iso-fill" d="M373.9 246.6L377.7 244.1L379.4 244.8L379.4 252.5L375.5 255.1L373.9 254.3Z"/><path class="iso-shade" data-shade="0" d="M379.4 252.5L375.5 255.1L375.5 247.4L379.4 244.8Z"/><path class="iso-shade" data-shade="3" d="M375.5 255.1L373.9 254.3L373.9 246.6L375.5 247.4Z"/><path class="iso-top" d="M375.5 247.4L373.9 246.6L377.7 244.1L379.4 244.8Z"/><path class="iso-line iso-crease" data-tone="faint" d="M379.4 244.8L375.5 247.4L373.9 246.6"/><path class="iso-line iso-edge" data-tone="mid" d="M373.9 246.6L377.7 244.1L379.4 244.8M379.4 252.5L375.5 255.1L373.9 254.3M373.9 246.6L373.9 254.3M379.4 244.8L379.4 252.5"/></g><g class="iso-solid pcb-metal"><path class="iso-fill" d="M373.9 246.6L377.7 244.1L379.2 244.7L379.2 246.5L375.4 249.1L373.9 248.4Z"/><path class="iso-shade" data-shade="0" d="M379.2 246.5L375.4 249.1L375.4 247.3L379.2 244.7Z"/><path class="iso-shade" data-shade="3" d="M375.4 249.1L373.9 248.4L373.9 246.6L375.4 247.3Z"/><path class="iso-top" d="M375.4 247.3L373.9 246.6L377.7 244.1L379.2 244.7Z"/><path class="iso-line iso-crease" data-tone="faint" d="M379.2 244.7L375.4 247.3L373.9 246.6"/><path class="iso-line iso-edge" data-tone="mid" d="M373.9 246.6L377.7 244.1L379.2 244.7M379.2 246.5L375.4 249.1L373.9 248.4M373.9 246.6L373.9 248.4M379.2 244.7L379.2 246.5"/></g><g class="iso-solid pcb-body"><path class="iso-fill" d="M372.3 239.9L417.2 210L459.7 230L459.7 245.9L414.9 275.8L372.3 255.9Z"/><path class="iso-shade" data-shade="0" d="M459.7 245.9L414.9 275.8L414.9 259.9L459.7 230Z"/><path class="iso-shade" data-shade="3" d="M414.9 275.8L372.3 255.9L372.3 239.9L414.9 259.9Z"/><path class="iso-top" d="M414.9 259.9L372.3 239.9L417.2 210L459.7 230Z"/><path class="iso-line iso-crease" data-tone="faint" d="M459.7 230L414.9 259.9L372.3 239.9"/><path class="iso-line iso-bevel" data-tone="faint" d="M459.7 230L414.7 258.7L372.3 239.9"/><path class="iso-line iso-edge" data-tone="hi" d="M372.3 239.9L417.2 210L459.7 230M459.7 245.9L414.9 275.8L372.3 255.9M372.3 239.9L372.3 255.9M459.7 230L459.7 245.9"/></g><path class="iso-line pcb-dimple" data-tone="mid" d="M419.2 248.7L420.2 248.2L421.3 248L422.6 248L423.7 248.2L424.7 248.7L425.3 249.3L425.5 250L425.3 250.6L424.7 251.2L423.7 251.7L422.6 251.9L421.3 251.9L420.2 251.7L419.2 251.2L418.6 250.6L418.4 250L418.6 249.3Z"/><g class="iso-solid pcb-metal"><path class="iso-fill" d="M454.3 250.7L458.1 248.1L468.8 253.1L468.8 254.9L464.9 257.4L454.3 252.4Z"/><path class="iso-shade" data-shade="0" d="M468.8 254.9L464.9 257.4L464.9 255.6L468.8 253.1Z"/><path class="iso-shade" data-shade="3" d="M464.9 257.4L454.3 252.4L454.3 250.7L464.9 255.6Z"/><path class="iso-top" d="M464.9 255.6L454.3 250.7L458.1 248.1L468.8 253.1Z"/><path class="iso-line iso-crease" data-tone="faint" d="M468.8 253.1L464.9 255.6L454.3 250.7"/><path class="iso-line iso-edge" data-tone="mid" d="M454.3 250.7L458.1 248.1L468.8 253.1M468.8 254.9L464.9 257.4L454.3 252.4M454.3 250.7L454.3 252.4M468.8 253.1L468.8 254.9"/></g><g class="iso-solid pcb-metal"><path class="iso-fill" d="M452.6 243.9L456.5 241.4L458.1 242.2L458.1 249.9L454.3 252.4L452.6 251.7Z"/><path class="iso-shade" data-shade="0" d="M458.1 249.9L454.3 252.4L454.3 244.7L458.1 242.2Z"/><path class="iso-shade" data-shade="3" d="M454.3 252.4L452.6 251.7L452.6 243.9L454.3 244.7Z"/><path class="iso-top" d="M454.3 244.7L452.6 243.9L456.5 241.4L458.1 242.2Z"/><path class="iso-line iso-crease" data-tone="faint" d="M458.1 242.2L454.3 244.7L452.6 243.9"/><path class="iso-line iso-edge" data-tone="mid" d="M452.6 243.9L456.5 241.4L458.1 242.2M458.1 249.9L454.3 252.4L452.6 251.7M452.6 243.9L452.6 251.7M458.1 242.2L458.1 249.9"/></g><g class="iso-solid pcb-metal"><path class="iso-fill" d="M452.8 244L456.6 241.5L458.1 242.2L458.1 243.9L454.3 246.5L452.8 245.8Z"/><path class="iso-shade" data-shade="0" d="M458.1 243.9L454.3 246.5L454.3 244.7L458.1 242.2Z"/><path class="iso-shade" data-shade="3" d="M454.3 246.5L452.8 245.8L452.8 244L454.3 244.7Z"/><path class="iso-top" d="M454.3 244.7L452.8 244L456.6 241.5L458.1 242.2Z"/><path class="iso-line iso-crease" data-tone="faint" d="M458.1 242.2L454.3 244.7L452.8 244"/><path class="iso-line iso-edge" data-tone="mid" d="M452.8 244L456.6 241.5L458.1 242.2M458.1 243.9L454.3 246.5L452.8 245.8M452.8 244L452.8 245.8M458.1 242.2L458.1 243.9"/></g><g class="iso-solid pcb-metal"><path class="iso-fill" d="M442.6 258.4L446.5 255.8L457.1 260.8L457.1 262.6L453.3 265.2L442.6 260.2Z"/><path class="iso-shade" data-shade="0" d="M457.1 262.6L453.3 265.2L453.3 263.4L457.1 260.8Z"/><path class="iso-shade" data-shade="3" d="M453.3 265.2L442.6 260.2L442.6 258.4L453.3 263.4Z"/><path class="iso-top" d="M453.3 263.4L442.6 258.4L446.5 255.8L457.1 260.8Z"/><path class="iso-line iso-crease" data-tone="faint" d="M457.1 260.8L453.3 263.4L442.6 258.4"/><path class="iso-line iso-edge" data-tone="mid" d="M442.6 258.4L446.5 255.8L457.1 260.8M457.1 262.6L453.3 265.2L442.6 260.2M442.6 258.4L442.6 260.2M457.1 260.8L457.1 262.6"/></g><g class="iso-solid pcb-metal"><path class="iso-fill" d="M441 251.7L444.9 249.1L446.5 249.9L446.5 257.6L442.6 260.2L441 259.4Z"/><path class="iso-shade" data-shade="0" d="M446.5 257.6L442.6 260.2L442.6 252.5L446.5 249.9Z"/><path class="iso-shade" data-shade="3" d="M442.6 260.2L441 259.4L441 251.7L442.6 252.5Z"/><path class="iso-top" d="M442.6 252.5L441 251.7L444.9 249.1L446.5 249.9Z"/><path class="iso-line iso-crease" data-tone="faint" d="M446.5 249.9L442.6 252.5L441 251.7"/><path class="iso-line iso-edge" data-tone="mid" d="M441 251.7L444.9 249.1L446.5 249.9M446.5 257.6L442.6 260.2L441 259.4M441 251.7L441 259.4M446.5 249.9L446.5 257.6"/></g><g class="iso-solid pcb-metal"><path class="iso-fill" d="M441.2 251.8L445 249.2L446.5 249.9L446.5 251.7L442.6 254.2L441.2 253.5Z"/><path class="iso-shade" data-shade="0" d="M446.5 251.7L442.6 254.2L442.6 252.5L446.5 249.9Z"/><path class="iso-shade" data-shade="3" d="M442.6 254.2L441.2 253.5L441.2 251.8L442.6 252.5Z"/><path class="iso-top" d="M442.6 252.5L441.2 251.8L445 249.2L446.5 249.9Z"/><path class="iso-line iso-crease" data-tone="faint" d="M446.5 249.9L442.6 252.5L441.2 251.8"/><path class="iso-line iso-edge" data-tone="mid" d="M441.2 251.8L445 249.2L446.5 249.9M446.5 251.7L442.6 254.2L441.2 253.5M441.2 251.8L441.2 253.5M446.5 249.9L446.5 251.7"/></g><g class="iso-solid pcb-metal"><path class="iso-fill" d="M431 266.1L434.9 263.6L445.5 268.6L445.5 270.3L441.7 272.9L431 267.9Z"/><path class="iso-shade" data-shade="0" d="M445.5 270.3L441.7 272.9L441.7 271.1L445.5 268.6Z"/><path class="iso-shade" data-shade="3" d="M441.7 272.9L431 267.9L431 266.1L441.7 271.1Z"/><path class="iso-top" d="M441.7 271.1L431 266.1L434.9 263.6L445.5 268.6Z"/><path class="iso-line iso-crease" data-tone="faint" d="M445.5 268.6L441.7 271.1L431 266.1"/><path class="iso-line iso-edge" data-tone="mid" d="M431 266.1L434.9 263.6L445.5 268.6M445.5 270.3L441.7 272.9L431 267.9M431 266.1L431 267.9M445.5 268.6L445.5 270.3"/></g><g class="iso-solid pcb-metal"><path class="iso-fill" d="M429.4 259.4L433.2 256.9L434.9 257.7L434.9 265.4L431 267.9L429.4 267.1Z"/><path class="iso-shade" data-shade="0" d="M434.9 265.4L431 267.9L431 260.2L434.9 257.7Z"/><path class="iso-shade" data-shade="3" d="M431 267.9L429.4 267.1L429.4 259.4L431 260.2Z"/><path class="iso-top" d="M431 260.2L429.4 259.4L433.2 256.9L434.9 257.7Z"/><path class="iso-line iso-crease" data-tone="faint" d="M434.9 257.7L431 260.2L429.4 259.4"/><path class="iso-line iso-edge" data-tone="mid" d="M429.4 259.4L433.2 256.9L434.9 257.7M434.9 265.4L431 267.9L429.4 267.1M429.4 259.4L429.4 267.1M434.9 257.7L434.9 265.4"/></g><g class="iso-solid pcb-metal"><path class="iso-fill" d="M429.5 259.5L433.4 257L434.9 257.7L434.9 259.4L431 262L429.5 261.3Z"/><path class="iso-shade" data-shade="0" d="M434.9 259.4L431 262L431 260.2L434.9 257.7Z"/><path class="iso-shade" data-shade="3" d="M431 262L429.5 261.3L429.5 259.5L431 260.2Z"/><path class="iso-top" d="M431 260.2L429.5 259.5L433.4 257L434.9 257.7Z"/><path class="iso-line iso-crease" data-tone="faint" d="M434.9 257.7L431 260.2L429.5 259.5"/><path class="iso-line iso-edge" data-tone="mid" d="M429.5 259.5L433.4 257L434.9 257.7M434.9 259.4L431 262L429.5 261.3M429.5 259.5L429.5 261.3M434.9 257.7L434.9 259.4"/></g><g class="iso-solid pcb-metal"><path class="iso-fill" d="M419.4 273.9L423.2 271.3L433.9 276.3L433.9 278.1L430 280.7L419.4 275.7Z"/><path class="iso-shade" data-shade="0" d="M433.9 278.1L430 280.7L430 278.9L433.9 276.3Z"/><path class="iso-shade" data-shade="3" d="M430 280.7L419.4 275.7L419.4 273.9L430 278.9Z"/><path class="iso-top" d="M430 278.9L419.4 273.9L423.2 271.3L433.9 276.3Z"/><path class="iso-line iso-crease" data-tone="faint" d="M433.9 276.3L430 278.9L419.4 273.9"/><path class="iso-line iso-edge" data-tone="mid" d="M419.4 273.9L423.2 271.3L433.9 276.3M433.9 278.1L430 280.7L419.4 275.7M419.4 273.9L419.4 275.7M433.9 276.3L433.9 278.1"/></g><g class="iso-solid pcb-metal"><path class="iso-fill" d="M417.8 267.2L421.6 264.6L423.2 265.4L423.2 273.1L419.4 275.7L417.8 274.9Z"/><path class="iso-shade" data-shade="0" d="M423.2 273.1L419.4 275.7L419.4 268L423.2 265.4Z"/><path class="iso-shade" data-shade="3" d="M419.4 275.7L417.8 274.9L417.8 267.2L419.4 268Z"/><path class="iso-top" d="M419.4 268L417.8 267.2L421.6 264.6L423.2 265.4Z"/><path class="iso-line iso-crease" data-tone="faint" d="M423.2 265.4L419.4 268L417.8 267.2"/><path class="iso-line iso-edge" data-tone="mid" d="M417.8 267.2L421.6 264.6L423.2 265.4M423.2 273.1L419.4 275.7L417.8 274.9M417.8 267.2L417.8 274.9M423.2 265.4L423.2 273.1"/></g><g class="iso-solid pcb-metal"><path class="iso-fill" d="M417.9 267.3L421.8 264.7L423.2 265.4L423.2 267.2L419.4 269.7L417.9 269Z"/><path class="iso-shade" data-shade="0" d="M423.2 267.2L419.4 269.7L419.4 268L423.2 265.4Z"/><path class="iso-shade" data-shade="3" d="M419.4 269.7L417.9 269L417.9 267.3L419.4 268Z"/><path class="iso-top" d="M419.4 268L417.9 267.3L421.8 264.7L423.2 265.4Z"/><path class="iso-line iso-crease" data-tone="faint" d="M423.2 265.4L419.4 268L417.9 267.3"/><path class="iso-line iso-edge" data-tone="mid" d="M417.9 267.3L421.8 264.7L423.2 265.4M423.2 267.2L419.4 269.7L417.9 269M417.9 267.3L417.9 269M423.2 265.4L423.2 267.2"/></g></svg></div></div><figcaption class="iso-legend"><span class="iso-keys"><span class="iso-key"><svg class="iso-swatch" data-mark="lit" viewBox="0 0 16 10" aria-hidden="true"><path d="M2 4.5 8 1.5 14 4.5 14 6 8 9 2 6Z"/><path class="iso-swatch-crease" d="M2 4.5 8 7.5 14 4.5"/></svg>C1 and the loop it closes with the chip's VDD and GND pins</span><span class="iso-key"><svg class="iso-swatch" data-mark="raised" viewBox="0 0 16 10" aria-hidden="true"><path d="M2 4.5 8 1.5 14 4.5 14 6 8 9 2 6Z"/><path class="iso-swatch-crease" d="M2 4.5 8 7.5 14 4.5"/></svg>SOIC-8, bulk capacitor C2 and the power header J1</span><span class="iso-key"><svg class="iso-swatch" data-mark="flat" viewBox="0 0 16 10" aria-hidden="true"><path d="M2 6.5 8 3.5 14 6.5 8 9.5Z"/></svg>0.3 mm rails, 3.81 mm apart, on the top layer</span></span><span class="iso-caption">Two parallel rails have about 0.4 · ln(πd / (w + t)) nH per millimetre, here 1.4 nH/mm, plus about 0.5 nH for the capacitor itself. Above its self-resonance a capacitor is only as good as that loop: every millimetre away from the pins adds about 0.9 Ω at 100 MHz, so at 9 mm C1 already looks like 8 Ω to the chip.</span></figcaption></figure></main><script type="module">const AZIMUTH = 45;
+const ELEVATION = 30;
+const SHADES = 4;
+const RADIANS = Math.PI / 180;
+const UNIT = Math.sqrt(1.6);
+function cameraOf({ scale, azimuth = AZIMUTH, elevation = ELEVATION }) {
+    const a = azimuth * RADIANS;
+    const e = elevation * RADIANS;
+    return { sinA: Math.sin(a), cosA: Math.cos(a), sinE: Math.sin(e), cosE: Math.cos(e), k: scale * UNIT };
+}
+function iso([x, y, z], projection) {
+    const { origin } = projection;
+    const { sinA, cosA, sinE, cosE, k } = cameraOf(projection);
+    return [origin[0] + (x * sinA - y * cosA) * k, origin[1] + ((x * cosA + y * sinA) * sinE - z * cosE) * k];
+}
+function towardViewer(projection) {
+    const { sinA, cosA } = cameraOf(projection);
+    return [cosA, sinA];
+}
+function depthOf([x, y, z], projection) {
+    const { sinA, cosA, sinE, cosE } = cameraOf(projection);
+    return (x * cosA + y * sinA) * cosE + z * sinE;
+}
+const tenth = (value) => {
+    const text = (Math.round(value * 10) / 10).toFixed(1).replace(/\.0$/, "");
+    return text === "-0" ? "0" : text;
+};
+function pathOf(points, closed = false) {
+    if (!points.length)
+        return "";
+    return points.map(([x, y], at) => `${at ? "L" : "M"}${tenth(x)} ${tenth(y)}`).join("") + (closed ? "Z" : "");
+}
+const joinPaths = (paths) => paths.filter(Boolean).join("");
+function roundedPlan({ x, y, w, d, r }, steps = 8) {
+    const radius = Math.max(0, Math.min(r, w / 2, d / 2));
+    const corners = [
+        [x + w - radius, y + radius, -90],
+        [x + w - radius, y + d - radius, 0],
+        [x + radius, y + d - radius, 90],
+        [x + radius, y + radius, 180],
+    ];
+    const out = [];
+    for (const [cx, cy, start] of corners) {
+        const count = radius > 0 ? steps : 0;
+        for (let step = 0; step <= count; step++) {
+            const angle = (start + (count ? (90 * step) / count : 45)) * RADIANS;
+            out.push([cx + radius * Math.cos(angle), cy + radius * Math.sin(angle)]);
+        }
+    }
+    return out;
+}
+function signedArea(points) {
+    let area = 0;
+    for (let index = 0; index < points.length; index++) {
+        const [ax, ay] = points[index];
+        const [bx, by] = points[(index + 1) % points.length];
+        area += ax * by - bx * ay;
+    }
+    return area / 2;
+}
+const oriented = (points) => (signedArea(points) < 0 ? [...points].reverse() : points);
+function convexHull(points) {
+    const sorted = [...points].sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+    if (sorted.length < 3)
+        return sorted;
+    const cross = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+    const lower = [];
+    for (const point of sorted) {
+        while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], point) <= 0)
+            lower.pop();
+        lower.push(point);
+    }
+    const upper = [];
+    for (let index = sorted.length - 1; index >= 0; index--) {
+        const point = sorted[index];
+        while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], point) <= 0)
+            upper.pop();
+        upper.push(point);
+    }
+    return [...lower.slice(0, -1), ...upper.slice(0, -1)];
+}
+function runsOf(flags, want) {
+    const count = flags.length;
+    const runs = [];
+    const start = flags.findIndex((flag, index) => flag !== flags[(index + count - 1) % count]);
+    if (start < 0)
+        return flags[0] === want ? [Array.from({ length: count + 1 }, (_, index) => index % count)] : [];
+    let run = null;
+    for (let step = 0; step < count; step++) {
+        const index = (start + step) % count;
+        if (flags[index] === want) {
+            if (!run)
+                run = [index];
+            run.push((index + 1) % count);
+        }
+        else if (run) {
+            runs.push(run);
+            run = null;
+        }
+    }
+    if (run)
+        runs.push(run);
+    return runs;
+}
+function extrude(ring, z, height, projection, options = {}) {
+    const convex = options.convex ?? true;
+    const count = ring.length;
+    const counter = signedArea(ring) > 0;
+    const [vx, vy] = towardViewer(projection);
+    const { sinA, cosA } = cameraOf(projection);
+    const normals = ring.map(([ax, ay], index) => {
+        const [bx, by] = ring[(index + 1) % count];
+        const dx = bx - ax;
+        const dy = by - ay;
+        const length = Math.hypot(dx, dy) || 1;
+        return (counter ? [dy / length, -dx / length] : [-dy / length, dx / length]);
+    });
+    const facing = normals.map(([nx, ny]) => nx * vx + ny * vy > 1e-9);
+    const top = ring.map(([x, y]) => iso([x, y, z + height], projection));
+    const bottom = ring.map(([x, y]) => iso([x, y, z], projection));
+    const outline = [];
+    const crease = [];
+    for (const run of runsOf(facing, false))
+        outline.push(pathOf(run.map((index) => top[index])));
+    for (const run of runsOf(facing, true)) {
+        crease.push(pathOf(run.map((index) => top[index])));
+        if (height > 0)
+            outline.push(pathOf(run.map((index) => bottom[index])));
+    }
+    if (height > 0) {
+        for (let index = 0; index < count; index++) {
+            if (facing[(index + count - 1) % count] !== facing[index])
+                outline.push(pathOf([top[index], bottom[index]]));
+        }
+    }
+    let fill;
+    if (convex) {
+        fill = pathOf(convexHull([...top, ...bottom]), true);
+    }
+    else {
+        const parts = [pathOf(oriented(top), true), pathOf(oriented(bottom), true)];
+        for (let index = 0; index < count; index++) {
+            if (!facing[index])
+                continue;
+            const next = (index + 1) % count;
+            parts.push(pathOf(oriented([top[index], top[next], bottom[next], bottom[index]]), true));
+        }
+        fill = parts.join("");
+    }
+    const buckets = Array.from({ length: SHADES }, () => []);
+    if (height > 0) {
+        const [lx, ly] = [-sinA, cosA];
+        for (let index = 0; index < count; index++) {
+            if (!facing[index])
+                continue;
+            const [nx, ny] = normals[index];
+            const lit = (nx * lx + ny * ly + 1) / 2;
+            const shade = Math.min(SHADES - 1, Math.max(0, Math.floor(lit * SHADES)));
+            const next = (index + 1) % count;
+            buckets[shade].push(pathOf(oriented([top[index], top[next], bottom[next], bottom[index]]), true));
+        }
+    }
+    let bevel;
+    if (options.bevel && options.bevel > 0) {
+        const by = options.bevel;
+        const inset = ring.map(([x, y], index) => {
+            const [ax, ay] = normals[(index + count - 1) % count];
+            const [bx, by2] = normals[index];
+            const mx = ax + bx;
+            const my = ay + by2;
+            const length = Math.hypot(mx, my) || 1;
+            return [x - (mx / length) * by, y - (my / length) * by];
+        });
+        const insetTop = inset.map(([x, y]) => iso([x, y, z + height], projection));
+        bevel = runsOf(facing, true)
+            .map((run) => pathOf([top[run[0]], ...run.slice(1, -1).map((index) => insetTop[index]), top[run[run.length - 1]]]))
+            .join("");
+    }
+    return {
+        fill,
+        outline: outline.join(""),
+        crease: crease.join(""),
+        top: pathOf(oriented(top), true),
+        shades: buckets.map((paths) => paths.join("")),
+        bevel,
+    };
+}
+const ringOf = (plan, steps = 8) => roundedPlan(plan, steps);
+function slabOf(plan, z, height, projection, steps = 8, bevel = 0) {
+    return extrude(ringOf(plan, steps), z, height, projection, { convex: true, bevel });
+}
+function circleRing(cx, cy, radius, steps = 40) {
+    return Array.from({ length: steps }, (_, step) => {
+        const angle = (step / steps) * Math.PI * 2;
+        return [cx + radius * Math.cos(angle), cy + radius * Math.sin(angle)];
+    });
+}
+function cylinder(cx, cy, radius, z, height, projection, steps = 32, bevel = 0) {
+    return extrude(circleRing(cx, cy, radius, steps), z, height, projection, { convex: true, bevel });
+}
+const insetPlan = ({ x, y, w, d, r }, by) => ({ x: x + by, y: y + by, w: w - by * 2, d: d - by * 2, r: Math.max(0, r - by) });
+function onTop(points, z, projection, closed = false) {
+    return pathOf(points.map(([x, y]) => iso([x, y, z], projection)), closed);
+}
+const planOutline = (plan, z, projection, steps = 8) => onTop(ringOf(plan, steps), z, projection, true);
+const lineOnTop = (from, to, z, projection) => onTop([from, to], z, projection);
+const segment = (from, to, projection) => pathOf([iso(from, projection), iso(to, projection)]);
+const rise = (at, from, to, projection) => segment([at[0], at[1], from], [at[0], at[1], to], projection);
+const ring = (cx, cy, radius, z, projection, steps = 40) => onTop(circleRing(cx, cy, radius, steps), z, projection, true);
+const pointsAt = (points, projection) => points.map((point) => iso(point, projection));
+function dotGrid(x, y, columns, rows, gap, z, projection) {
+    const dots = [];
+    for (let row = 0; row < rows; row++) {
+        for (let column = 0; column < columns; column++)
+            dots.push(iso([x + column * gap, y + row * gap, z], projection));
+    }
+    return dots;
+}
+function corners({ x, y, w, d }, inset = 0) {
+    return [
+        [x + inset, y + inset],
+        [x + w - inset, y + inset],
+        [x + inset, y + d - inset],
+        [x + w - inset, y + d - inset],
+    ];
+}
+function boxCorners({ x, y, w, d }, z0, z1) {
+    const out = [];
+    for (const px of [x, x + w])
+        for (const py of [y, y + d])
+            for (const z of [z0, z1])
+                out.push([px, py, z]);
+    return out;
+}
+function knurl(cx, cy, radius, z0, z1, count, projection, inset = 0.4) {
+    const [vx, vy] = towardViewer(projection);
+    const lines = [];
+    for (let index = 0; index < count; index++) {
+        const angle = (index / count) * Math.PI * 2;
+        const nx = Math.cos(angle);
+        const ny = Math.sin(angle);
+        if (nx * vx + ny * vy < 0.15)
+            continue;
+        lines.push(segment([cx + radius * nx, cy + radius * ny, z0 + inset], [cx + radius * nx, cy + radius * ny, z1 - inset], projection));
+    }
+    return lines.join("");
+}
+function sideArc(cx, cy, radius, z, projection, steps = 24) {
+    const [vx, vy] = towardViewer(projection);
+    const facing = Math.atan2(vy, vx);
+    const points = [];
+    for (let step = 0; step <= steps; step++) {
+        const angle = facing - Math.PI / 2 + (step / steps) * Math.PI;
+        points.push(iso([cx + radius * Math.cos(angle), cy + radius * Math.sin(angle), z], projection));
+    }
+    return pathOf(points);
+}
+function ringSeam(ring, z, projection) {
+    const count = ring.length;
+    const counter = signedArea(ring) > 0;
+    const [vx, vy] = towardViewer(projection);
+    const facing = ring.map(([ax, ay], index) => {
+        const [bx, by] = ring[(index + 1) % count];
+        const dx = bx - ax;
+        const dy = by - ay;
+        const [nx, ny] = counter ? [dy, -dx] : [-dy, dx];
+        return nx * vx + ny * vy > 1e-9;
+    });
+    return runsOf(facing, true).map((run) => pathOf(run.map((index) => iso([ring[index][0], ring[index][1], z], projection)))).join("");
+}
+const sideSeam = (plan, z, projection, steps = 8) => ringSeam(ringOf(plan, steps), z, projection);
+function sideRing(center, radius, axis, projection, steps = 20) {
+    const [px, py, pz] = center;
+    const points = [];
+    for (let step = 0; step < steps; step++) {
+        const angle = (step / steps) * Math.PI * 2;
+        const u = radius * Math.cos(angle);
+        const v = radius * Math.sin(angle);
+        points.push(iso(axis === "x" ? [px, py + u, pz + v] : [px + u, py, pz + v], projection));
+    }
+    return pathOf(points, true);
+}
+function coil(from, to, center, radius, turns, axis, projection, perTurn = 16) {
+    const count = Math.max(1, Math.round(turns * perTurn));
+    const back = [];
+    const front = [];
+    let run = [];
+    let near = null;
+    for (let index = 0; index <= count; index++) {
+        const share = index / count;
+        const angle = share * turns * Math.PI * 2;
+        const u = radius * Math.cos(angle);
+        const v = radius * Math.sin(angle);
+        const along = from + (to - from) * share;
+        const point = axis === "x" ? [along, center[0] + u, center[1] + v] : [center[0] + u, along, center[1] + v];
+        const normal = axis === "x" ? [0, Math.cos(angle), Math.sin(angle)] : [Math.cos(angle), 0, Math.sin(angle)];
+        const facing = depthOf(normal, projection) > 0;
+        const flat = iso(point, projection);
+        if (near === null)
+            near = facing;
+        if (facing !== near) {
+            run.push(flat);
+            (near ? front : back).push(pathOf(run));
+            run = [flat];
+            near = facing;
+            continue;
+        }
+        run.push(flat);
+    }
+    if (run.length > 1)
+        (near ? front : back).push(pathOf(run));
+    return { back: back.join(""), front: front.join("") };
+}
+function topTicks(from, to, step, every, edge, z, lengths, projection, axis = "x") {
+    const minor = [];
+    const major = [];
+    const first = Math.ceil(from / step) * step;
+    for (let at = first, index = Math.round(first / step); at <= to + 1e-9; at += step, index++) {
+        const big = index % every === 0;
+        const length = big ? lengths[1] : lengths[0];
+        const a = axis === "x" ? [at, edge] : [edge, at];
+        const b = axis === "x" ? [at, edge + length] : [edge + length, at];
+        (big ? major : minor).push(lineOnTop(a, b, z, projection));
+    }
+    return { minor: minor.join(""), major: major.join("") };
+}
+function sideTicks(from, to, step, every, face, top, lengths, projection, axis = "x") {
+    const minor = [];
+    const major = [];
+    const first = Math.ceil(from / step) * step;
+    for (let at = first, index = Math.round(first / step); at <= to + 1e-9; at += step, index++) {
+        const big = index % every === 0;
+        const length = big ? lengths[1] : lengths[0];
+        const a = axis === "x" ? [at, face, top] : [face, at, top];
+        const b = axis === "x" ? [at, face, top - length] : [face, at, top - length];
+        (big ? major : minor).push(segment(a, b, projection));
+    }
+    return { minor: minor.join(""), major: major.join("") };
+}
+function radialTicks(cx, cy, radius, count, every, z, lengths, projection, from = 0, span = Math.PI * 2) {
+    const minor = [];
+    const major = [];
+    const closed = Math.abs(span - Math.PI * 2) < 1e-9;
+    const steps = closed ? count : count + 1;
+    for (let index = 0; index < steps; index++) {
+        const angle = from + (index / count) * span;
+        const big = index % every === 0;
+        const inner = radius - (big ? lengths[1] : lengths[0]);
+        const sx = Math.sin(angle);
+        const sy = -Math.cos(angle);
+        (big ? major : minor).push(lineOnTop([cx + sx * inner, cy + sy * inner], [cx + sx * radius, cy + sy * radius], z, projection));
+    }
+    return { minor: minor.join(""), major: major.join("") };
+}
+const haloOf = (plan, z, height, projection) => slabOf(plan, z, height, projection).fill;
+function axisVector(projection, [dx, dy, dz]) {
+    const origin = iso([0, 0, 0], projection);
+    const moved = iso([dx, dy, dz], projection);
+    return [moved[0] - origin[0], moved[1] - origin[1]];
+}
+const fine = (value) => Math.round(value * 100) / 100;
+function translateAlong(projection, by) {
+    const [x, y] = axisVector(projection, by);
+    return `translate(${fine(x)} ${fine(y)})`;
+}
+const thousandth = (value) => Math.round(value * 1000) / 1000;
+function axesAt(at, z, projection) {
+    const origin = iso([at[0], at[1], z], projection);
+    const along = (point) => {
+        const [px, py] = iso(point, projection);
+        return [px - origin[0], py - origin[1]];
+    };
+    return { origin, x: along([at[0] + 1, at[1], z]), y: along([at[0], at[1] + 1, z]), z: along([at[0], at[1], z + 1]) };
+}
+const matrixOf = (u, v, origin) => `matrix(${thousandth(u[0])} ${thousandth(u[1])} ${thousandth(v[0])} ${thousandth(v[1])} ${thousandth(origin[0])} ${thousandth(origin[1])})`;
+function holdStill(element, [dx, dy]) {
+    const text = dx || dy ? `translate(${-dx} ${-dy})` : "";
+    element.querySelectorAll("[data-hold]").forEach((node) => (text ? node.setAttribute("transform", text) : node.removeAttribute("transform")));
+}
+function topMatrix(at, z, projection, along = "x") {
+    const { origin, x, y } = axesAt(at, z, projection);
+    return along === "x" ? matrixOf(x, y, origin) : matrixOf([-y[0], -y[1]], x, origin);
+}
+function sideMatrix(at, z, projection, face) {
+    const { origin, x, y, z: up } = axesAt(at, z, projection);
+    const down = [-up[0], -up[1]];
+    return face === "left" ? matrixOf(x, down, origin) : matrixOf([-y[0], -y[1]], down, origin);
+}
+function screenRise(height, projection) {
+    const { cosE, k } = cameraOf(projection);
+    return height * cosE * k;
+}
+function fitProjection(points, width, height, { pad = 24, headroom = 0, azimuth = AZIMUTH, elevation = ELEVATION } = {}) {
+    const unit = { origin: [0, 0], scale: 1, azimuth, elevation };
+    const flat = points.map((point) => iso(point, unit));
+    const xs = flat.map(([x]) => x);
+    const ys = flat.map(([, y]) => y);
+    const left = Math.min(...xs);
+    const right = Math.max(...xs);
+    const up = Math.min(...ys);
+    const down = Math.max(...ys);
+    const scale = Math.min((width - pad * 2) / (right - left), (height - pad * 2 - headroom) / (down - up));
+    return {
+        origin: [width / 2 - ((left + right) / 2) * scale, headroom + (height - headroom) / 2 - ((up + down) / 2) * scale],
+        scale,
+        azimuth,
+        elevation,
+    };
+}
+const escape = (text) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+const attrs = (pairs) => Object.entries(pairs)
+    .filter(([, value]) => value !== undefined && value !== false)
+    .map(([key, value]) => ` ${key}="${escape(String(value))}"`)
+    .join("");
+function solidSvg(paths, { tone = "hi", crease = "faint", halo = false, lit = false, flat = false, className, inner = "" } = {}) {
+    const parts = [];
+    if (halo)
+        parts.push(`<path class="iso-halo" d="${paths.fill}"/>`);
+    parts.push(`<path class="iso-fill" d="${paths.fill}"/>`);
+    if (!flat) {
+        paths.shades.forEach((d, shade) => {
+            if (d)
+                parts.push(`<path class="iso-shade" data-shade="${shade}" d="${d}"/>`);
+        });
+        parts.push(`<path class="iso-top" d="${paths.top}"/>`);
+    }
+    if (crease !== "none" && paths.crease)
+        parts.push(`<path class="iso-line iso-crease" data-tone="${crease}" d="${paths.crease}"/>`);
+    if (crease !== "none" && paths.bevel)
+        parts.push(`<path class="iso-line iso-bevel" data-tone="${crease}" d="${paths.bevel}"/>`);
+    if (inner)
+        parts.push(inner);
+    parts.push(`<path class="iso-line iso-edge" data-tone="${tone}" d="${paths.outline}"/>`);
+    return `<g${attrs({ class: className ? `iso-solid ${className}` : "iso-solid", "data-lit": lit ? "" : undefined, "data-seamless": paths.seamless ? "" : undefined })}>${parts.join("")}</g>`;
+}
+function lineSvg(d, { tone = "lo", dotted = false, dashed = false, flow = false, className, free } = {}) {
+    if (!d)
+        return "";
+    return `<path${attrs({
+        class: className ? `iso-line ${className}` : "iso-line",
+        "data-tone": tone,
+        "data-free": free === true ? "" : free || undefined,
+        "data-dotted": dotted ? "" : undefined,
+        "data-dashed": dashed ? "" : undefined,
+        "data-flow": flow ? "" : undefined,
+        d,
+    })}/>`;
+}
+function dotsSvg(points, { size = 0.5, tone = "mid", pulse = false } = {}) {
+    const dots = points
+        .map(([x, y, alpha], index) => `<circle cx="${tenth(x)}" cy="${tenth(y)}" r="${size}"${alpha !== undefined && alpha < 1 ? ` fill-opacity="${Math.max(0, alpha).toFixed(2)}"` : ""}${pulse ? ` data-pulse="" style="--pulse-at:${(index * 137) % 1600}ms"` : ""}/>`)
+        .join("");
+    return `<g class="iso-dots" data-tone="${tone}">${dots}</g>`;
+}
+function fadedSvg(list, style = {}) {
+    const groups = new Map();
+    for (const entry of list) {
+        const [d, alpha] = Array.isArray(entry) ? entry : [entry.d, entry.alpha];
+        if (!d || !(alpha > 0.02))
+            continue;
+        const level = Math.min(1, Math.round(alpha * 20) / 20);
+        groups.set(level, (groups.get(level) ?? "") + d);
+    }
+    return [...groups].map(([alpha, d]) => (alpha >= 1 ? lineSvg(d, style) : `<g opacity="${alpha.toFixed(2)}">${lineSvg(d, style)}</g>`)).join("");
+}
+function fadeLineSvg(points, { fade = [0, 0], tone = "lo", className, stops = 6 } = {}) {
+    if (points.length < 2)
+        return "";
+    const ease = (t) => t * t * (3 - 2 * t);
+    const hashOf = (text) => {
+        let hash = 2166136261;
+        for (let index = 0; index < text.length; index++)
+            hash = Math.imul(hash ^ text.charCodeAt(index), 16777619);
+        return (hash >>> 0).toString(36);
+    };
+    const lengths = [0];
+    for (let index = 1; index < points.length; index++)
+        lengths.push(lengths[index - 1] + Math.hypot(points[index][0] - points[index - 1][0], points[index][1] - points[index - 1][1]));
+    const at = (length) => {
+        let index = 1;
+        while (index < points.length - 1 && lengths[index] < length)
+            index++;
+        const span = lengths[index] - lengths[index - 1] || 1;
+        const t = Math.max(0, Math.min(1, (length - lengths[index - 1]) / span));
+        return [points[index - 1][0] + (points[index][0] - points[index - 1][0]) * t, points[index - 1][1] + (points[index][1] - points[index - 1][1]) * t];
+    };
+    const pieceOf = (from, to) => [at(from), ...points.filter((_, index) => lengths[index] > from + 1e-6 && lengths[index] < to - 1e-6), at(to)];
+    const total = lengths[lengths.length - 1];
+    if (total < 1e-6)
+        return "";
+    let [start, end] = Array.isArray(fade) ? fade : [fade, fade];
+    if (start + end > total) {
+        const share = total / (start + end);
+        start *= share;
+        end *= share;
+    }
+    const paint = `var(--anatomy-${tone})`;
+    const ramp = (piece, rising) => {
+        const d = pathOf(piece);
+        const [x1, y1] = piece[0];
+        const [x2, y2] = piece[piece.length - 1];
+        const id = `iso-fade-${hashOf(`${d}|${tone}|${rising}`)}`;
+        const marks = Array.from({ length: stops + 1 }, (_, index) => {
+            const t = index / stops;
+            const alpha = ease(rising ? t : 1 - t);
+            return `<stop offset="${t.toFixed(3)}" stop-opacity="${alpha.toFixed(3)}" style="stop-color:${paint}"/>`;
+        }).join("");
+        const gradient = `<linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="${tenth(x1)}" y1="${tenth(y1)}" x2="${tenth(x2)}" y2="${tenth(y2)}">${marks}</linearGradient>`;
+        return `<defs>${gradient}</defs><path${attrs({ class: className ? `iso-line ${className}` : "iso-line", "data-tone": tone, "data-free": rising ? "start" : "end", d, style: `stroke:url(#${id})` })}/>`;
+    };
+    const parts = [];
+    if (start > 0.05)
+        parts.push(ramp(pieceOf(0, start), true));
+    if (total - end - start > 0.05)
+        parts.push(lineSvg(pathOf(pieceOf(start, total - end)), { tone, className }));
+    if (end > 0.05)
+        parts.push(ramp(pieceOf(total - end, total), false));
+    return `<g class="iso-fade">${parts.join("")}</g>`;
+}
+function wireSvg(from, to, { via = [], tone = "lo", dotted = false, dashed = false, flow = false, ends = "both", size = 1.2 } = {}) {
+    const d = pathOf([from, ...via, to]);
+    const end = ([x, y]) => `<circle class="iso-wire-end" cx="${tenth(x)}" cy="${tenth(y)}" r="${size}"/>`;
+    return `<g class="iso-wire" data-tone="${tone}">${lineSvg(d, { tone, dotted, dashed, flow })}${ends === "both" || ends === "from" ? end(from) : ""}${ends === "both" || ends === "to" ? end(to) : ""}</g>`;
+}
+function faceTextSvg(transform, text, { size = 3, tone = "mid", anchor = "start" } = {}) {
+    return `<text class="iso-face-text" data-tone="${tone}" transform="${transform}" font-size="${size}" text-anchor="${anchor}">${escape(text)}</text>`;
+}
+function groupSvg(children, extra = {}) {
+    return `<g${attrs(extra)}>${Array.isArray(children) ? children.join("") : children}</g>`;
+}
+function figureSvg({ width, height, label, body, standalone = false, className }) {
+    const style = standalone ? `<style>${ISO_CSS}</style>` : "";
+    return `<svg${attrs({
+        xmlns: "http://www.w3.org/2000/svg",
+        class: `iso-svg${standalone ? " iso" : ""}${className ? ` ${className}` : ""}`,
+        "data-theme": standalone || undefined,
+        viewBox: `0 0 ${width} ${height}`,
+        role: "img",
+        "aria-label": label,
+    })}>${style}${Array.isArray(body) ? body.join("") : body}</svg>`;
+}
+function swatchSvg(mark) {
+    if (mark === "raised" || mark === "flat" || mark === "lit") {
+        const body = mark === "flat" ? "M2 6.5 8 3.5 14 6.5 8 9.5Z" : "M2 4.5 8 1.5 14 4.5 14 6 8 9 2 6Z";
+        const crease = mark === "flat" ? "" : `<path class="iso-swatch-crease" d="M2 4.5 8 7.5 14 4.5"/>`;
+        return `<svg class="iso-swatch" data-mark="${mark}" viewBox="0 0 16 10" aria-hidden="true"><path d="${body}"/>${crease}</svg>`;
+    }
+    return `<svg class="iso-swatch" data-mark="${mark}" viewBox="0 0 16 10" aria-hidden="true"><path d="M1.5 5h13"/></svg>`;
+}
+function plateHtml({ fig, title, hint, readout = "", keys = [], caption, body }) {
+    const corner = (name, text, extra = "") => `<span class="iso-plate-corner" data-corner="${name}"${extra}>${escape(text)}</span>`;
+    const legend = keys.length || caption
+        ? `<figcaption class="iso-legend">${keys.length ? `<span class="iso-keys">${keys.map((key) => `<span class="iso-key">${swatchSvg(key.mark)}${escape(key.label)}</span>`).join("")}</span>` : ""}${caption ? `<span class="iso-caption">${escape(caption)}</span>` : ""}</figcaption>`
+        : "";
+    return `<figure class="iso-figure"><div class="iso-plate"><div class="iso-plate-corners" aria-hidden="true">${corner("fig", fig)}${title ? corner("title", title) : ""}${hint ? corner("hint", hint) : ""}${corner("readout", readout, " data-readout")}</div>${body}</div>${legend}</figure>`;
+}
+function pageHtml({ title, theme = "dark", body, script = "", width = 650 }) {
+    return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${escape(title)}</title><style>${ISO_CSS}${PAGE_CSS.replace("__WIDTH__", String(width))}</style></head><body class="iso" data-theme="${theme}"><main class="iso-page">${body}</main>${script ? `<script type="module">${script.replace(/<\/(script)/gi, "<\\/$1")}<\/script>` : ""}</body></html>`;
+}
+const PAGE_CSS = `
+*{box-sizing:border-box}
+html{color-scheme:dark}
+body[data-theme="light"]{color-scheme:light}
+body{margin:0;background:var(--anatomy-page);color:var(--anatomy-text);font:14px/1.6 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+.iso-page{width:min(__WIDTH__px,100% - 32px);margin:64px auto 96px}
+`;
+const ISO_CSS = `
+.iso{
+  --anatomy-page:#0b0b0b;--anatomy-card:#131313;--anatomy-text:#a3a3a3;--anatomy-strong:#e6e6e6;--anatomy-muted:#6e6e6e;
+  --anatomy-paper:#131313;--anatomy-face:#1b1b1b;--anatomy-top:#1c1c1c;
+  --anatomy-shade-0:#0f0f0f;--anatomy-shade-1:#121212;--anatomy-shade-2:#151515;--anatomy-shade-3:#181818;
+  --anatomy-lit-top:#262626;--anatomy-lit-shade:#1d1d1d;
+  --anatomy-hi:#d4d4d4;--anatomy-mid:#6a6a6a;--anatomy-lo:#3e3e3e;--anatomy-faint:#2a2a2a;--anatomy-lit:#ffffff;
+  --anatomy-halo:#050505;--anatomy-halo-opacity:.9;--anatomy-dot:#e6e6e6;
+  --anatomy-red:#ff6b6b;--anatomy-green:#6be0a0;--anatomy-blue:#6b9bff;
+  --anatomy-weight:.6px;--anatomy-ease:cubic-bezier(.32,.72,0,1);
+  --anatomy-mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --anatomy-lift:inset 0 1px 0 0 #ffffff0a,inset 0 0 0 1px #ffffff06,0 0 0 1px #00000026,0 1px 1px -.5px #00000014,0 3px 3px -1.5px #00000014,0 6px 6px -3px #00000014,0 12px 12px -6px #00000014;
+}
+.iso[data-theme="light"]{
+  --anatomy-page:#f2f2ef;--anatomy-card:#fbfbfa;--anatomy-text:#57575a;--anatomy-strong:#18181a;--anatomy-muted:#8c8c90;
+  --anatomy-paper:#fbfbfa;--anatomy-face:#ffffff;--anatomy-top:#ffffff;
+  --anatomy-shade-0:#dcdcd9;--anatomy-shade-1:#e5e5e2;--anatomy-shade-2:#ededea;--anatomy-shade-3:#f4f4f1;
+  --anatomy-lit-top:#ffffff;--anatomy-lit-shade:#eeeeeb;
+  --anatomy-hi:#26262a;--anatomy-mid:#8a8a8f;--anatomy-lo:#b4b4b8;--anatomy-faint:#d4d4d6;--anatomy-lit:#000000;
+  --anatomy-halo:#8a8a80;--anatomy-halo-opacity:.32;--anatomy-dot:#3a3a3e;
+  --anatomy-red:#e5484d;--anatomy-green:#30a46c;--anatomy-blue:#3e63dd;
+  --anatomy-lift:inset 0 1px 0 0 #ffffff,0 0 0 1px #0000000f,0 1px 1px -.5px #0000000a,0 3px 3px -1.5px #0000000a,0 6px 6px -3px #0000000a,0 12px 12px -6px #0000000a;
+}
+.iso-svg{display:block;width:100%;height:auto;overflow:visible}
+.iso-svg path,.iso-svg circle{vector-effect:non-scaling-stroke}
+.iso-fill{fill:var(--anatomy-paper);stroke:none}
+.iso-solid[data-lit]>.iso-fill{fill:var(--anatomy-face)}
+.iso-shade,.iso-top{stroke:none}
+.iso-shade[data-shade="0"]{fill:var(--anatomy-shade-0)}
+.iso-shade[data-shade="1"]{fill:var(--anatomy-shade-1)}
+.iso-shade[data-shade="2"]{fill:var(--anatomy-shade-2)}
+.iso-shade[data-shade="3"]{fill:var(--anatomy-shade-3)}
+.iso-top{fill:var(--anatomy-top)}
+.iso-solid[data-lit]>.iso-top{fill:var(--anatomy-lit-top)}
+.iso-solid[data-lit]>.iso-shade{fill:var(--anatomy-lit-shade)}
+.iso-solid[data-seamless]>.iso-shade,.iso-solid[data-seamless]>.iso-top{stroke-width:.4;stroke-linejoin:round}
+.iso-solid[data-seamless]>.iso-shade[data-shade="0"]{stroke:var(--anatomy-shade-0)}
+.iso-solid[data-seamless]>.iso-shade[data-shade="1"]{stroke:var(--anatomy-shade-1)}
+.iso-solid[data-seamless]>.iso-shade[data-shade="2"]{stroke:var(--anatomy-shade-2)}
+.iso-solid[data-seamless]>.iso-shade[data-shade="3"]{stroke:var(--anatomy-shade-3)}
+.iso-solid[data-seamless]>.iso-top{stroke:var(--anatomy-top)}
+.iso-solid[data-seamless][data-lit]>.iso-top{stroke:var(--anatomy-lit-top)}
+.iso-solid[data-seamless][data-lit]>.iso-shade{stroke:var(--anatomy-lit-shade)}
+.iso-solid[data-lit]>.iso-edge{stroke:var(--anatomy-lit)}
+.iso-halo{fill:var(--anatomy-halo);stroke:none;filter:blur(9px);opacity:var(--anatomy-halo-opacity);transform:translateY(3px)}
+.iso-line{fill:none;stroke:var(--anatomy-lo);stroke-width:var(--anatomy-weight);stroke-linecap:round;stroke-linejoin:round}
+.iso-line[data-tone="hi"]{stroke:var(--anatomy-hi)}
+.iso-line[data-tone="mid"]{stroke:var(--anatomy-mid)}
+.iso-line[data-tone="lo"]{stroke:var(--anatomy-lo)}
+.iso-line[data-tone="faint"]{stroke:var(--anatomy-faint)}
+.iso-line[data-tone="lit"]{stroke:var(--anatomy-lit)}
+.iso-line[data-tone="red"]{stroke:var(--anatomy-red)}
+.iso-line[data-tone="green"]{stroke:var(--anatomy-green)}
+.iso-line[data-tone="blue"]{stroke:var(--anatomy-blue)}
+.iso-line[data-dotted]{stroke-dasharray:.01 3.5;stroke-width:1}
+.iso-line[data-dashed]{stroke-dasharray:3 3}
+.iso-line[data-flow]{stroke-dasharray:2 6}
+.iso-wire-end{fill:var(--anatomy-paper);stroke:var(--anatomy-lo);stroke-width:var(--anatomy-weight)}
+.iso-wire[data-tone="hi"] .iso-wire-end{stroke:var(--anatomy-hi)}
+.iso-wire[data-tone="mid"] .iso-wire-end{stroke:var(--anatomy-mid)}
+.iso-wire[data-tone="faint"] .iso-wire-end{stroke:var(--anatomy-faint)}
+.iso-wire[data-tone="lit"] .iso-wire-end{stroke:var(--anatomy-lit)}
+.iso-dots circle{fill:var(--anatomy-dot);stroke:none;opacity:.32}
+.iso-dots[data-tone="hi"] circle{opacity:.85}
+.iso-dots[data-tone="mid"] circle{opacity:.45}
+.iso-dots[data-tone="lo"] circle{opacity:.22}
+.iso-dots[data-tone="faint"] circle{opacity:.12}
+.iso-face-text{fill:var(--anatomy-mid);font-family:var(--anatomy-mono);letter-spacing:.04em}
+.iso-face-text[data-tone="hi"]{fill:var(--anatomy-hi)}
+.iso-face-text[data-tone="lo"]{fill:var(--anatomy-lo)}
+.iso-face-text[data-tone="faint"]{fill:var(--anatomy-faint)}
+.tb-body{fill:var(--anatomy-shade-2);stroke:none}
+.tb-shine{fill:var(--anatomy-top);stroke:none}
+.tb-shade{fill:var(--anatomy-shade-0);stroke:none}
+.tb-ring{fill:none;stroke:var(--anatomy-lo);stroke-width:.45;stroke-linecap:butt;stroke-linejoin:round}
+.tb-ring[data-tone="mid"]{stroke:var(--anatomy-mid)}
+.tb-ring[data-tone="faint"]{stroke:var(--anatomy-faint)}
+.tb-ring[data-tone="hi"]{stroke:var(--anatomy-hi)}
+@keyframes iso-flow{to{stroke-dashoffset:-32}}
+@keyframes iso-pulse{0%,100%{opacity:.18}12%{opacity:1}40%{opacity:.18}}
+.iso-line[data-flow]{animation:iso-flow 1600ms linear infinite}
+.iso-dots circle[data-pulse]{animation:iso-pulse 1600ms steps(1,end) infinite;animation-delay:var(--pulse-at,0ms)}
+.iso-figure{margin:32px 0 36px}
+.iso-plate{position:relative;padding:52px 24px;border-radius:0;background:var(--anatomy-card);box-shadow:0 0 0 1px var(--anatomy-mid);--anatomy-paper:var(--anatomy-card)}
+.iso-plate-corners{position:absolute;inset:18px 20px;pointer-events:none}
+.iso-plate-corner{position:absolute;color:var(--anatomy-muted);font-family:var(--anatomy-mono);font-size:10.5px;line-height:1;letter-spacing:.04em;white-space:nowrap}
+.iso-plate-corner[data-corner="fig"]{top:0;left:0;color:var(--anatomy-text)}
+.iso-plate-corner[data-corner="title"]{top:0;right:0;text-transform:uppercase;letter-spacing:.1em}
+.iso-plate-corner[data-corner="hint"]{bottom:0;left:0;text-transform:uppercase;letter-spacing:.1em}
+.iso-plate-corner[data-corner="readout"]{right:0;bottom:0;color:var(--anatomy-text);font-variant-numeric:tabular-nums}
+.iso-plate .iso-svg{margin:0 auto}
+.iso-legend{display:grid;gap:8px;margin-top:12px;color:var(--anatomy-muted);font-size:13px;line-height:1.55}
+.iso-keys{display:flex;flex-wrap:wrap;gap:6px 18px}
+.iso-key{display:inline-flex;align-items:center;gap:7px}
+.iso-swatch{width:16px;height:10px;flex:none;overflow:visible}
+.iso-swatch path{fill:none;stroke:var(--anatomy-hi);stroke-width:1;vector-effect:non-scaling-stroke;stroke-linejoin:round;stroke-linecap:round}
+.iso-swatch[data-mark="raised"] path,.iso-swatch[data-mark="flat"] path{stroke:var(--anatomy-mid)}
+.iso-swatch[data-mark="lit"] path{stroke:var(--anatomy-lit)}
+.iso-swatch[data-mark="dim"] path{stroke:var(--anatomy-lo)}
+.iso-swatch[data-mark="dotted"] path{stroke-dasharray:.01 3;stroke-width:1.4}
+.iso-swatch[data-mark="dashed"] path{stroke-dasharray:3 2.5}
+.iso-swatch[data-mark="red"] path{stroke:var(--anatomy-red)}
+.iso-swatch[data-mark="green"] path{stroke:var(--anatomy-green)}
+.iso-swatch[data-mark="blue"] path{stroke:var(--anatomy-blue)}
+.iso-swatch-crease{stroke:var(--anatomy-lo)!important}
+@media (max-width:560px){.iso-plate{padding:48px 12px 70px}.iso-plate-corner[data-corner="hint"]{bottom:18px}}
+@media (prefers-reduced-motion:reduce){.iso-line[data-flow],.iso-dots circle[data-pulse]{animation:none}}
+`;
+
+const P = {"origin":[418.5022470368809,352.02408290649157],"scale":1.2760616773562048,"azimuth":-130,"elevation":34}, K = 8.823529411764707;
+const TRACE = {"w":0.3,"t":0.035,"d":3.81}, ESL = 0.5, F_TEST = 100e6;
+const START = 11.649999999999999, REACH = [12.649999999999999,21.15], X0 = 12.649999999999999;
+const RAIL = {"vdd":7.595,"gnd":11.405,"from":10.674999999999999,"to":26.6,"w":0.3}, CY = 9.5;
+const loopOf = function loopOf(l, { w, t, d } = TRACE) {
+  const perMm = 0.4 * Math.log((Math.PI * d) / (w + t));
+  const traces = perMm * l;
+  const L = traces + ESL;
+  const z = 2 * Math.PI * F_TEST * L * 1e-9;
+  return { l, area: l * d, perMm, L, z };
+};
+const describe = (s) =>
+  `${s.l.toFixed(1)} mm · ${s.area.toFixed(0)} mm² · ${s.L.toFixed(1)} nH · ${s.z.toFixed(1)} Ω at 100 MHz`;
+const at = ([x, y], z = 0) => [x * K, y * K, z * K];
+const path = (pts, z, close) => "M" + pts.map((p) => iso(at(p, z), P).map((v) => Math.round(v * 10) / 10).join(" ")).join("L") + (close ? "Z" : "");
+const stage = document.querySelector(".iso-stage");
+const svg = stage.querySelector("svg");
+const capEl = svg.querySelector('[data-part="cap"]'), loopEl = svg.querySelector('[data-part="loop"]'), flowEl = svg.querySelector('[data-part="flow"]');
+const readout = document.querySelector("[data-readout]");
+const still = matchMedia("(prefers-reduced-motion: reduce)");
+const STOPS = [REACH[0], START + 4, START + 7, REACH[1]];
+let x = REACH[0], target = x, touring = !still.matches, clock = 0, frame = 0, last = 0, visible = false, idle = 0;
+function draw() {
+  capEl.setAttribute("transform", translateAlong(P, [(x - X0) * K, 0, 0]));
+  loopEl.setAttribute("d", path([[START, RAIL.vdd], [x, RAIL.vdd], [x, RAIL.gnd], [START, RAIL.gnd]], 0.03, true));
+  flowEl.setAttribute("d", path([[x, CY - 0.775], [x, RAIL.vdd], [START, RAIL.vdd], [START, RAIL.gnd], [x, RAIL.gnd], [x, CY + 0.775]], 0.06, false));
+  const s = loopOf(x - START);
+  const text = describe(s);
+  if (readout.textContent !== text) readout.textContent = text;
+  stage.setAttribute("aria-valuenow", s.l.toFixed(1));
+  stage.setAttribute("aria-valuetext", text);
+}
+function tick(now) {
+  const dt = last ? Math.min((now - last) / 1000, 1 / 30) : 1 / 60;
+  last = now;
+  if (touring) { clock += dt; target = STOPS[Math.floor(clock / 2.4) % STOPS.length]; }
+  x = still.matches ? target : x + (target - x) * (1 - Math.exp(-dt / 0.32));
+  if (Math.abs(target - x) < 0.005) x = target;
+  draw();
+  frame = visible && (touring || x !== target) ? requestAnimationFrame(tick) : 0;
+}
+const run = () => { if (!frame && visible) { last = 0; frame = requestAnimationFrame(tick); } };
+const steer = (next) => { touring = false; target = Math.min(REACH[1], Math.max(REACH[0], next)); clearTimeout(idle); idle = setTimeout(() => { touring = !still.matches; clock = 0; run(); }, 4000); run(); };
+new IntersectionObserver((e) => { visible = e[e.length - 1].isIntersecting; if (visible) run(); }, { rootMargin: "120px 0px" }).observe(stage);
+stage.addEventListener("pointermove", (event) => {
+  const box = svg.getBoundingClientRect();
+  const share = Math.min(1, Math.max(0, ((event.clientX - box.left) / box.width - 0.3) / 0.45));
+  steer(REACH[0] + share * (REACH[1] - REACH[0]));
+});
+stage.addEventListener("keydown", (event) => {
+  const step = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1 }[event.key];
+  if (event.key === "Home") steer(REACH[0]); else if (event.key === "End") steer(REACH[1]); else if (step) steer(target + step); else return;
+  event.preventDefault();
+});
+if (still.matches) touring = false;
+draw();
+</script></body></html>

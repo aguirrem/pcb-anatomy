@@ -1,0 +1,12 @@
+Comment,Designator,Footprint,LCSC Part #
+1u,"C1,C2",C_0603_1608Metric,
+100n,C3,C_0603_1608Metric,
+green,D1,LED_0603_1608Metric,
+USB4105-GF-A,J1,USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal,
+ISP,J2,PinHeader_2x03_P2.54mm_Vertical,
+5.1k,"R1,R2",R_0603_1608Metric,
+10k,R3,R_0603_1608Metric,
+330,R4,R_0603_1608Metric,
+TL3342,SW1,SW_SPST_TL3342,
+AP2112K-3.3,U1,SOT-23-5,
+ATtiny85-20S,U2,SOIC-8_5.3x5.3mm_P1.27mm,

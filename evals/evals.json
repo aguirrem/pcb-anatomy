@@ -1,0 +1,41 @@
+{
+  "skill_name": "pcb-anatomy",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Design me a small board in KiCad: USB-C powered (5 V in, sink only), an AP2112K 3.3 V LDO, an ATtiny85 in SOIC that blinks an LED, a reset button and a 6-pin ISP header. Two layers, about 32 x 24 mm, four M2 mounting holes, JLCPCB fab. I want the KiCad project and the Gerbers.",
+      "expected_output": "A spec.yaml as the source, a KiCad 9/10 schematic built from it that ends netlist parity ok and ERC 0 errors (CC1/CC2 each with 5.1 k to ground, USB data pins marked no-connect, PWR_FLAGs listed and justified), a placed board with the connector on an edge and decoupling caps at the LDO input and output and at the MCU's VCC pin (anchors placed by intent in `placement` or `near:`), autorouted to 0 unrouted and 0 layout errors with GND pours stitched, a review run with no blocker or major open, and fab outputs from outputs.py --fab jlcpcb. Renders of the schematic, top side and copper layers were made and looked at, and the report states the assumptions made (LED colour, resistor values, passive size) and that the USB-C footprint's own hole clearance should be confirmed with the fab.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Can you review this KiCad project before I send it to fab? It's a sensor board for a customer, I'm using PCBWay. The 3V3 rail draws about 250 mA peak and VIN is 12 V at 100 mA.",
+      "expected_output": "review.py run with --fab pcbway and --currents for the stated rails; the report leads with a one-line verdict, lists findings by severity with locations and concrete fixes, includes review-top.png with the located findings ringed, separates findings inside one footprint from layout errors, and adds the second-pass checks the script cannot do (datasheet reference circuits of the main ICs, pull-ups, regulator dissipation from 12 V to 3.3 V at 250 mA, connector protection), ending with what was not checked. It does not call the board ready while a blocker or major is open. If no project files are attached, it asks for them.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Make an interactive isometric figure of my board for the project README, light background, the real look of the board (green mask, gold pads). Here's the .kicad_pcb.",
+      "expected_output": "board_dump.py then board-figure.mjs with --light --palette board; the figure shows every part at its package height with the main edge connector facing the reader, a tour through the named nets with the lit copper matching the readout, hover focus and Space lifting the parts. Any package the dumper guessed wrong is corrected with --override. Checked with capture.mjs at desktop and 390 px, a 4x close-up, the lifted state, and lines.mjs printing line ends: 0; compared against render.py's 2D top view to confirm nothing is mirrored or misplaced.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "I teach embedded systems. I want a figure that shows students why the ground return current flows directly under the signal trace, and what happens when there's a slot cut in the ground plane under it. Single HTML file, dark theme.",
+      "expected_output": "An invented two-layer board built from kit/pcb.mjs: a signal trace on the top layer and a ground pour on the bottom layer that lifts or is shown in section so the return path is visible; a pure model.mjs computes the return path (directly beneath the trace at high frequency, detouring around the slot) and its loop area or inductance, which drive the readout; the reader can toggle or drag the slot. Anatomy craft holds: solid parts, one lit accent (the return current), calm motion, reduced-motion still frame, silkscreen-only text, line ends: 0, and every PNG checked.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "I need a footprint and symbol for the TI TPS62840 in the DLC (1.5 x 2 mm, 6-pin) package, KiCad doesn't have it. Put them in my project library.",
+      "expected_output": "A part YAML built from the datasheet's package and pinout pages (pin numbers, names and electrical types correct, power_out not used for SW or VOUT unless the datasheet says so), partgen.py run against the user's project so lib/ and both lib tables are updated, the previews looked at, and the generated pad table compared with the datasheet's recommended land pattern; where they differ the datasheet's land pattern is used via family: pads. The reply states the remaining verification (a 1:1 print against the real part).",
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Explain how a buck converter's hot loop works, as one of those anatomy-style isometric figures, but on a real-looking PCB.",
+      "expected_output": "Illustrate mode, idea path, board palette: a small board with the input capacitor, high-side and low-side switches (or a converter IC with SW pin), inductor and output capacitor; a model.mjs with the switching period and the two alternating current loops; the lit loop changes as the switch toggles, and the readout gives the hot-loop area and inductance and a ringing or di/dt figure from the model. Checked with captures across the switching cycle and lines.mjs at 0.",
+      "files": []
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.kicad_pcb.bak
+*.kicad_prl
+*-backups/
+.route/
+fp-info-cache
+_autosave-*
+*.lck
+node_modules/
+.DS_Store

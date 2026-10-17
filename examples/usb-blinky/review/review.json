@@ -1,0 +1,106 @@
+{
+  "project": "usb-blinky",
+  "fab": "jlcpcb",
+  "counts": {
+    "blocker": 0,
+    "major": 0,
+    "minor": 3,
+    "info": 7
+  },
+  "findings": [
+    {
+      "severity": "minor",
+      "check": "DRC (inside footprint)",
+      "message": "J1: Hole clearance violation (board setup constraints hole clearance 0.2000 mm; actual 0.1944 mm) (x4); comes from the footprint itself, so confirm the fab can build it or edit the footprint",
+      "at": [
+        19.25,
+        7.53
+      ],
+      "refs": [
+        "J1"
+      ]
+    },
+    {
+      "severity": "minor",
+      "check": "bom",
+      "message": "no MPN or LCSC number for D1, J2, SW1",
+      "at": null,
+      "refs": [
+        "D1",
+        "J2",
+        "SW1"
+      ]
+    },
+    {
+      "severity": "minor",
+      "check": "silkscreen",
+      "message": "2 references not on the silkscreen: D1, R1 (assembly drawing needed)",
+      "at": null,
+      "refs": [
+        "R1",
+        "D1"
+      ]
+    },
+    {
+      "severity": "info",
+      "check": "board",
+      "message": "32.1 x 24.1 mm, 2 copper layers, 1.60 mm thick, 17 footprints",
+      "at": null,
+      "refs": []
+    },
+    {
+      "severity": "info",
+      "check": "bom",
+      "message": "7 passives without part numbers (value and footprint may be enough for the assembler)",
+      "at": null,
+      "refs": []
+    },
+    {
+      "severity": "info",
+      "check": "current",
+      "message": "+3V3: narrowest track 0.38 mm carries about 1.17 A (1 oz outer, 10 \u00b0C rise), 3 vias; needs 0.3 A",
+      "at": null,
+      "refs": []
+    },
+    {
+      "severity": "info",
+      "check": "current",
+      "message": "VBUS: narrowest track 0.38 mm carries about 1.17 A (1 oz outer, 10 \u00b0C rise), 0 vias; needs 1.0 A",
+      "at": null,
+      "refs": []
+    },
+    {
+      "severity": "info",
+      "check": "decoupling",
+      "message": "U2 pin 8 (VCC_8): C3 at 2.1 mm",
+      "at": null,
+      "refs": []
+    },
+    {
+      "severity": "info",
+      "check": "decoupling",
+      "message": "U1 pin 1 (VIN_1): C1 at 2.3 mm",
+      "at": null,
+      "refs": []
+    },
+    {
+      "severity": "info",
+      "check": "fab",
+      "message": "narrowest track 0.187 mm (fab minimum 0.127 mm)",
+      "at": null,
+      "refs": []
+    }
+  ],
+  "reports": {
+    "erc": "/home/claude/pcb-anatomy/examples/usb-blinky/usb-blinky-erc.json",
+    "drc": "/home/claude/pcb-anatomy/examples/usb-blinky/usb-blinky-drc.json"
+  },
+  "not_checked": [
+    "signal integrity beyond pair length",
+    "thermal dissipation",
+    "EMC",
+    "datasheet-specific layout rules",
+    "component availability and lifecycle",
+    "mechanical fit with the enclosure"
+  ]
+}

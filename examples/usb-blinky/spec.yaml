@@ -1,0 +1,64 @@
+# A USB-C powered ATtiny85 blinker: the design-mode example.
+# Build:   python3 scripts/kicad/sch_build.py examples/usb-blinky/spec.yaml
+#          python3 scripts/kicad/pcb_build.py examples/usb-blinky/spec.yaml
+#          python3 scripts/kicad/route.py examples/usb-blinky/usb-blinky.kicad_pcb
+project: usb-blinky
+title: USB-C ATtiny85 blinker
+rev: A
+company: AutomatID
+
+parts:
+  J1: {symbol: "Connector:USB_C_Receptacle_USB2.0_16P", footprint: "Connector_USB:USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal", value: USB4105-GF-A, group: power, fields: {MPN: USB4105-GF-A}}
+  R1: {symbol: "Device:R", footprint: "Resistor_SMD:R_0603_1608Metric", value: 5.1k, group: power}
+  R2: {symbol: "Device:R", footprint: "Resistor_SMD:R_0603_1608Metric", value: 5.1k, group: power}
+  U1: {symbol: "Regulator_Linear:AP2112K-3.3", footprint: "Package_TO_SOT_SMD:SOT-23-5", value: AP2112K-3.3, group: power, fields: {MPN: AP2112K-3.3TRG1}}
+  C1: {symbol: "Device:C", footprint: "Capacitor_SMD:C_0603_1608Metric", value: 1u, group: power}
+  C2: {symbol: "Device:C", footprint: "Capacitor_SMD:C_0603_1608Metric", value: 1u, group: power, near: U1.VOUT}   # LDO output cap: stability needs it close
+  U2: {symbol: "MCU_Microchip_ATtiny:ATtiny85-20S", footprint: "Package_SO:SOIC-8_5.3x5.3mm_P1.27mm", value: ATtiny85-20S, group: mcu, fields: {MPN: ATTINY85-20SU}}
+  C3: {symbol: "Device:C", footprint: "Capacitor_SMD:C_0603_1608Metric", value: 100n, group: mcu}
+  R3: {symbol: "Device:R", footprint: "Resistor_SMD:R_0603_1608Metric", value: 10k, group: mcu}
+  R4: {symbol: "Device:R", footprint: "Resistor_SMD:R_0603_1608Metric", value: 330, group: mcu}
+  D1: {symbol: "Device:LED", footprint: "LED_SMD:LED_0603_1608Metric", value: green, group: mcu}
+  SW1: {symbol: "Switch:SW_Push", footprint: "Button_Switch_SMD:SW_SPST_TL3342", value: TL3342, group: mcu}
+  J2: {symbol: "Connector:AVR-ISP-6", footprint: "Connector_PinHeader_2.54mm:PinHeader_2x03_P2.54mm_Vertical", value: ISP, group: mcu}
+
+nets:
+  VBUS: [J1.VBUS, U1.VIN, U1.EN, C1.1]
+  GND: [J1.GND, J1.SHIELD, R1.2, R2.2, U1.GND, C1.2, C2.2, U2.GND, C3.2, D1.K, SW1.2, J2.GND]
+  CC1: [J1.CC1, R1.1]
+  CC2: [J1.CC2, R2.1]
+  +3V3: [U1.VOUT, C2.1, U2.VCC, C3.1, R3.1, J2.VCC]
+  RESET: [U2.1, R3.2, J2.5]
+  MOSI: [U2.PB0, J2.MOSI]
+  MISO: [U2.PB1, J2.MISO, R4.1]
+  SCK: [U2.PB2, J2.SCK]
+  BTN: [U2.PB3, SW1.1]
+  LED_A: [R4.2, D1.A]
+
+nc: [J1.D+, J1.D-, J1.SBU1, J1.SBU2, U2.PB4]
+
+board:
+  size: [32, 24]          # mm
+  corner: 2
+  layers: 2
+  thickness: 1.6
+  holes: {diameter: 2.2, inset: 2.6, footprint: "MountingHole:MountingHole_2.2mm_M2"}
+  edge_clearance: 0.5
+
+rules:                    # copied into the project's design rules
+  track: 0.25
+  clearance: 0.2
+  via: [0.6, 0.3]         # pad diameter, drill
+  netclasses:
+    Power: {nets: [VBUS, +3V3, GND], track: 0.5, clearance: 0.2}
+
+pours:
+  - {net: GND, layers: [F.Cu, B.Cu]}
+
+placement:                # mm from the board's top-left corner; anything left out is auto-placed
+  J1: {at: [16, 3.8], rot: 180}
+  U2: {at: [17, 14]}
+  C3: {at: [21.0, 10.0]}            # U2's decoupling cap, right above pin 8 (VCC)
+  U1: {at: [24.5, 5.2]}
+  J2: {at: [25, 12]}
+  SW1: {at: [8, 15.5]}
